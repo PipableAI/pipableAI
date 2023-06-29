@@ -1,7 +1,7 @@
 import copy
 from pprint import pprint
 from IPython.display import HTML
-
+from IPython.display import display
 class ada():
 
   def __init__(self,ada_model=None,ada_tokenizer=None,open_ai=None,google_search=None,ada_thread="",embedder=None,table=None):

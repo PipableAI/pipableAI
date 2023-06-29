@@ -10,6 +10,7 @@ class proxyResults():
   def __init__(self):
     self.ada_thread = ""
     self.action_list=[]
+    self.output_objects = []
     # self.model_list = ["ada","sem-search","google-search","aggregated_stats"]
 
   def update_ada_thread(self,thread):
@@ -17,6 +18,14 @@ class proxyResults():
 
   def update_action(self,model_id):
     self.action_list.append(model_id)
+
+  def update_outputobjs(self,outputObj=None):
+    self.output_objects.append(outputObj)
+
+class output_obj():
+  def __init__(self,output="",model_id=""):
+    self._output = output
+    self._model_id = model_id
 
 class masterClass():
   def __init__(self,pathToCSV = "",actions=[],func_desc=[]):
@@ -32,33 +41,51 @@ class masterClass():
                                "find correlation amongst different features",
                                "Query google to find answers to certain questions. Can you use google to get me the results, look at google , get search results , get reference links, do google search.",
                                "Get me the results of all patients. Show me the results of a particular entity. Get me the list of entities where val > X. Analyse the data in a particular time period."]
-    self.actions = [self.ada_.ask_ada,self.sem_s.find_similar_score,self.agg_stat.get_stats,self.agg_stat.get_corr,self.askgoogle.ask_google,self.datasearch.search_csv_data]
+    self.actions = [self.ada_.ask_ada,self.sem_s.find_similar_score,self.agg_stat.get_stats,self.agg_stat.get_corr,self.askgoogle.ask_google,self.datasearch.search_csv_natural]
     self.sem_s.create_key_vectors(self.action_descriptions)
     self.results_proxy = proxyResults()
+    self.model_ids = ["ada","semantic_search","agg_stats","agg_corr","google_search","datasearch"]
 
   def temp_ask(self,query):
     action_descriptions = self.action_descriptions
-    #print(query)
     score = self.actions[1](query_list=query)
-    action = self.actions[int(jnp.argmax(score))]
-    return (action,int(jnp.argmax(score)))
+    # action = self.actions[int(jnp.argmax(score))]
+    return int(jnp.argmax(score))
 
-  def ask(self,query,model=0):
-    if (model == 0):
-      action,model_id = self.temp_ask(query)
-      model_id+=1
-      result=action(query)
-      if(model_id == 1):
-        self.askgoogle.ask_google(result)
-        self.results_proxy.update_ada_thread(result)
-      self.results_proxy.update_action(model_id)
-    elif (model > 5):
-      pprint("No Such Model Found. Please enter correct Model ID")
+  def ask(self,query,model=""):
+    model_id = self.parse_model_input(model)
+    if model_id == -1:
       return
-    else:
-      result = self.actions[model-1](query)
-      if(model == 1):
-        self.askgoogle.ask_google(result)
-        self.results_proxy.update_ada_thread(result)
-      self.results_proxy.update_action(model)
+    if (model_id == 0):
+      model_id = self.temp_ask(query)
+      model_id+=1
+    result = self.actions[model_id-1](query)
+    if(model_id == 1):
+      self.askgoogle.ask_google(result)
+      self.results_proxy.update_ada_thread(result)
+    self.results_proxy.update_action(model)
+    self.results_proxy.update_outputobjs(output_obj(output=result,model_id=self.model_ids[model_id-1]))
     return
+
+  def parse_model_input(self,model):
+    model_found=0
+    for i in range(len(self.model_ids)):
+      if self.model_ids[i] == model:
+        model_found = i+1
+        break
+
+    if (model_found == 0 and model != ""):
+      print("No such model found. Ensure that correct model_id is entered. For model ids refer to .get_help() for more details.")
+      return -1
+
+    return model_found
+
+  def get_help(self):
+    print("You can ask any question using the ask function. It takes two Parameters, query and model. Different models and their query are mentioned below :-")
+    print("MODEL             DESCRIPTION")
+    for i in range(len(self.model_ids)):
+      print("{}                   :- {}".format(self.model_ids[i],self.action_descriptions[i]))
+
+
+master = masterClass(pathToCSV="csv_files/alyf.csv")
+master.ask("Get all patient ids and vital in the form of table that have vitals as Heart Rate and value between 100 to 150 between march to april 2023")

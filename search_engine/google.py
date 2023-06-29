@@ -3,7 +3,7 @@ import re
 from html import unescape
 from pprint import pprint
 from IPython.display import HTML
-
+from IPython.display import display
 #google search api --------  "AIzaSyB88bY1dmo50Pp9dSTzln-JqhsfV_CSW2o"
 #programmable_search_engine_apikey ------ "336ee76d0d6af4acd"
 class google_search():

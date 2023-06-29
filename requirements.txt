@@ -1,0 +1,15 @@
+transformers
+sentence-transformers
+langchain
+openai
+google-api-python-client
+einops
+accelerate
+dask
+"dask[complete]"
+dask_ml
+PyPDF2
+xformers
+jax
+jaxlib
+tabulate
