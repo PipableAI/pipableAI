@@ -3,7 +3,6 @@ from search_data.csv import data_search
 from search_data.semantic import semantic_search
 from search_engine.ada import ada
 from search_engine.google import google_search
-from pprint import pprint
 import jax.numpy as jnp
 
 class proxyResults():
