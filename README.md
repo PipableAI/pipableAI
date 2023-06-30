@@ -1,5 +1,13 @@
 # Pipable 🧪
 
+## Creating a virtual environment (Optional)
+
+If somehow installation fails because of library conflicts, it is suggested to create a virtual environment first then proceed with the installation. 
+
+1) Run `pip install virtualenv`. This will install virtualenv package on your machine.
+2) In the home directory, run `python -m env`. This will create a new virtual Environment by the name env.
+3) Run `source env/bin/activate` to activate the new virtual environment.
+
 ## Installation instructions:
 
 1) Clone the repository
