@@ -27,11 +27,11 @@ class _output_obj():
     self._model_id = model_id
 
 class Pipable():
-  def __init__(self,pathToCSV = "",actions=[],func_desc=[]):
+  def __init__(self,pathToCSV = "",actions=[],func_desc=[], openaiKEY="", googleCustomKEY="", googleProgrammableKEY=""):
     super().__init__()
-    openai_APIKEY = input("Please Enter OpenAI key :- ")
-    google_custom_api_key = input("Please Enter Custom API Key of Google :- ")
-    programmable_search_engine_api_key = input("Please Enter Programmable Search Engine(Google) API Key :- ")
+    openai_APIKEY = openaiKEY
+    google_custom_api_key = googleCustomKEY
+    programmable_search_engine_api_key = googleProgrammableKEY
     self.ada_ = _ada(openaiAPIKEY=openai_APIKEY).initialize()
     self.sem_s = _semantic_search().initialize()
     self.askgoogle = _google_search().initialise(google_api_key=google_custom_api_key,search_engine_key=programmable_search_engine_api_key)
@@ -98,6 +98,6 @@ class Pipable():
     return [x._output for x in self.results_proxy.output_objects]
 
 # # sample usage
-#a = Pipable(pathToCSV="sample_data/alyf.csv")
+#a = Pipable(pathToCSV="sample_data/sample.csv", openaiKEY="OPENAI_API_KEY", googleCustomKEY="GOOGLE_CUSTOM_SEARCH_API_KEY", googleProgrammableKEY="GOOGLE_PROGRAMMABLE_SEARCH_ENGINE_API_KEY")
 #a.ask("Get all patient ids and vital in the form of table that have vitals as Heart Rate and value between 100 to 150 between march to april 2023")
 #a.ask("What all risks are associated with the increase in the heart rate")
