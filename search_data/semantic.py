@@ -3,7 +3,7 @@ from pprint import pprint
 from IPython.display import HTML
 import jax.numpy as jnp
 
-class semantic_search():
+class _semantic_search():
   def __init__(self,embedder = None,key_vectors="None"):
     super().__init__()
     self.embedder = embedder

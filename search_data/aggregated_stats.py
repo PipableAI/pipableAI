@@ -3,7 +3,7 @@ from IPython.display import HTML
 import pandas as pd
 import numpy as np
 
-class aggregated_stats():
+class _aggregated_stats():
   def __init__(self,frame="None"):
     super().__init__()
     self.frame = frame

@@ -1,16 +1,16 @@
-from search_data.aggregated_stats import aggregated_stats
-from search_data.csv import data_search
-from search_data.semantic import semantic_search
-from search_engine.ada import ada
-from search_engine.google import google_search
+from search_data.aggregated_stats import _aggregated_stats
+from search_data.csv import _data_search
+from search_data.semantic import _semantic_search
+from search_engine.ada import _ada
+from search_engine.google import _google_search
 import jax.numpy as jnp
 
-class proxyResults():
+class _proxy_results():
   def __init__(self):
     self.ada_thread = ""
     self.action_list=[]
     self.output_objects = []
-    # self.model_list = ["ada","sem-search","google-search","aggregated_stats"]
+    # self.model_list = ["_ada","sem-search","google-search","_aggregated_stats"]
 
   def update_ada_thread(self,thread):
     self.ada_thread = thread
@@ -21,19 +21,19 @@ class proxyResults():
   def update_outputobjs(self,outputObj=None):
     self.output_objects.append(outputObj)
 
-class output_obj():
+class _output_obj():
   def __init__(self,output="",model_id=""):
     self._output = output
     self._model_id = model_id
 
-class masterClass():
+class Pipable():
   def __init__(self,pathToCSV = "",actions=[],func_desc=[]):
     super().__init__()
-    self.ada_ = ada().initialize()
-    self.sem_s = semantic_search().initialize()
-    self.askgoogle = google_search().initialise()
-    self.agg_stat = aggregated_stats().initialize(pathToCSV)
-    self.datasearch = data_search().initialize()
+    self.ada_ = _ada().initialize()
+    self.sem_s = _semantic_search().initialize()
+    self.askgoogle = _google_search().initialise()
+    self.agg_stat = _aggregated_stats().initialize(pathToCSV)
+    self.datasearch = _data_search().initialize()
     self.action_descriptions= ["Ask generic health questions like - why is my blood pressure high ? what causes increase in heart rate ?, what leads to sudden drop in blood pressure ?, why increase in weight is a risk to heart ? why sudden loss of weight can be a risk to heart ? Similar health related queries accompanied with ask Ada. Ask Ada:",
                                "Perform semantic search given a query. Queries can be like find similar items",
                                "find over all statistics of the data given",
@@ -42,8 +42,8 @@ class masterClass():
                                "Get me the results of all patients. Show me the results of a particular entity. Get me the list of entities where val > X. Analyse the data in a particular time period."]
     self.actions = [self.ada_.ask_ada,self.sem_s.find_similar_score,self.agg_stat.get_stats,self.agg_stat.get_corr,self.askgoogle.ask_google,self.datasearch.search_csv_natural]
     self.sem_s.create_key_vectors(self.action_descriptions)
-    self.results_proxy = proxyResults()
-    self.model_ids = ["ada","semantic_search","agg_stats","agg_corr","google_search","datasearch"]
+    self.results_proxy = _proxy_results()
+    self.model_ids = ["_ada","_semantic_search","agg_stats","agg_corr","_google_search","datasearch"]
 
   def temp_ask(self,query):
     action_descriptions = self.action_descriptions
@@ -63,7 +63,7 @@ class masterClass():
       self.askgoogle.ask_google(result)
       self.results_proxy.update_ada_thread(result)
     self.results_proxy.update_action(model)
-    self.results_proxy.update_outputobjs(output_obj(output=result,model_id=self.model_ids[model_id-1]))
+    self.results_proxy.update_outputobjs(_output_obj(output=result,model_id=self.model_ids[model_id-1]))
     return
 
   def parse_model_input(self,model):
@@ -86,5 +86,6 @@ class masterClass():
       print("{}                   :- {}".format(self.model_ids[i],self.action_descriptions[i]))
 
 
-master = masterClass(pathToCSV="csv_files/alyf.csv")
-master.ask("Get all patient ids and vital in the form of table that have vitals as Heart Rate and value between 100 to 150 between march to april 2023")
+# # sample usage
+# a = Pipable(pathToCSV="sample_data/alyf.csv")
+# a.ask("Get all patient ids and vital in the form of table that have vitals as Heart Rate and value between 100 to 150 between march to april 2023")

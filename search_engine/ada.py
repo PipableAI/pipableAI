@@ -2,15 +2,13 @@ import copy
 from pprint import pprint
 from IPython.display import HTML
 from IPython.display import display
-class ada():
 
-  def __init__(self,ada_model=None,ada_tokenizer=None,open_ai=None,google_search=None,ada_thread="",embedder=None,table=None):
-
+class _ada():
+  def __init__(self,ada_model=None,ada_tokenizer=None,open_ai=None,_google_search=None,ada_thread="",embedder=None,table=None):
     super().__init__()
     self.ada_model=ada_model
     self.ada_tokenizer = ada_tokenizer
     self.ada_thread=ada_thread
-
 
   def initialize(self):
     ada_thread=self.ada_thread

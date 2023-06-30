@@ -6,8 +6,9 @@ from IPython.display import HTML
 from IPython.display import display
 #google search api --------  "AIzaSyB88bY1dmo50Pp9dSTzln-JqhsfV_CSW2o"
 #programmable_search_engine_apikey ------ "336ee76d0d6af4acd"
-class google_search():
-  def __init__(self,google_search=None,frame=None,
+
+class _google_search():
+  def __init__(self,_google_search=None,frame=None,
                past_query=[],current_query=None,current_input=None,
                action=[],current_action=None,
                output=[],current_output=None,correct_output=[],programmable_search_engine_api_key="",past_results_urls=[],past_snippets=[]):
@@ -15,7 +16,7 @@ class google_search():
     self.past_query=past_query
     self.current_query=current_query
     self.current_input=current_input
-    self.google_search = google_search
+    self._google_search = _google_search
     self.correct_output=correct_output
     self.past_results_urls = past_results_urls
     self.past_snippets = past_snippets
@@ -23,12 +24,12 @@ class google_search():
 
   def initialise(self):
     google_api_key = "AIzaSyB88bY1dmo50Pp9dSTzln-JqhsfV_CSW2o"
-    #pprint(display(HTML('<span style="color:#0F9D58">%%Loading GOOGLE SEARCH:google_search ........%%</span>')))
-    google_search = build('customsearch', 'v1', developerKey=google_api_key)
+    #pprint(display(HTML('<span style="color:#0F9D58">%%Loading GOOGLE SEARCH:_google_search ........%%</span>')))
+    _google_search = build('customsearch', 'v1', developerKey=google_api_key)
     programmable_search_engine_api_key_inp = "336ee76d0d6af4acd"
     #pprint(display(HTML('<span style="color:#0F9D58">%%Loading PROGRAMMABLE SEARCH ENGINE:programmable_search_engine ........%%</span>')))
     self.programmable_search_engine_api_key = programmable_search_engine_api_key_inp
-    self.google_search = google_search
+    self._google_search = _google_search
     return self
 
   def ask_google(self,query):
@@ -41,7 +42,7 @@ class google_search():
     pprint(display(HTML('<span style="color:#DB4437">Google Search Loaded: What is your query ?</span>')))
     self.past_query.append(query)
     pprint(display(HTML('<span style="color:#4285F4">Google search: fetching results : </span>')))
-    gs = self.google_search
+    gs = self._google_search
     print("Query :- {}".format(query))
     response = gs.cse().list(q=query, cx=self.programmable_search_engine_api_key).execute()
     ite=1

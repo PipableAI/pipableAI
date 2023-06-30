@@ -2,7 +2,8 @@ import pandas as pd
 from langchain.llms.openai import OpenAI
 from langchain.agents import create_pandas_dataframe_agent
 import json
-class data_search():
+
+class _data_search():
   def __init__(self, tempkey = "", openai = None, df = None, agent = None, agent_data = None):
     super().__init__()
     self.tempkey = tempkey
