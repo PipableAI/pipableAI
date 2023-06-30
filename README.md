@@ -5,8 +5,6 @@
 1) Clone the repository
 2) Run `pip install -r requirements.txt` within the directory
 
-## Creating a virtual environment (Optional)
-
 If the requirements installation fails because of library conflicts, you can create a python virtual environment first and then install the requirements within the virtual environment. 
 
 1) Run `pip install virtualenv`. This will install virtualenv package on your machine.
