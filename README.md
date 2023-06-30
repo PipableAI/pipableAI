@@ -30,6 +30,10 @@ a = Pipable(
 )
 
 a.ask("Get all patient ids and vital in the form of table that have vitals as Heart Rate and value between 100 to 150 between march to april 2023")
+
+outputs = a.get_all_outputs()
+#List of all the outputs will be generated.
+
 ```
 
 You can now ask pipable anything. Enjoy 🥳
