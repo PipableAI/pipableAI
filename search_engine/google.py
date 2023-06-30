@@ -22,13 +22,9 @@ class _google_search():
     self.past_snippets = past_snippets
     self.programmable_search_engine_api_key = programmable_search_engine_api_key
 
-  def initialise(self):
-    google_api_key = "AIzaSyB88bY1dmo50Pp9dSTzln-JqhsfV_CSW2o"
-    #pprint(display(HTML('<span style="color:#0F9D58">%%Loading GOOGLE SEARCH:_google_search ........%%</span>')))
+  def initialise(self,google_api_key = "",search_engine_key=""):
     _google_search = build('customsearch', 'v1', developerKey=google_api_key)
-    programmable_search_engine_api_key_inp = "336ee76d0d6af4acd"
-    #pprint(display(HTML('<span style="color:#0F9D58">%%Loading PROGRAMMABLE SEARCH ENGINE:programmable_search_engine ........%%</span>')))
-    self.programmable_search_engine_api_key = programmable_search_engine_api_key_inp
+    self.programmable_search_engine_api_key = search_engine_key
     self._google_search = _google_search
     return self
 

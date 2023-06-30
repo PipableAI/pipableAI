@@ -29,11 +29,14 @@ class _output_obj():
 class Pipable():
   def __init__(self,pathToCSV = "",actions=[],func_desc=[]):
     super().__init__()
-    self.ada_ = _ada().initialize()
+    openai_APIKEY = input("Please Enter OpenAI key :- ")
+    google_custom_api_key = input("Please Enter Custom API Key of Google :- ")
+    programmable_search_engine_api_key = input("Please Enter Programmable Search Engine(Google) API Key :- ")
+    self.ada_ = _ada(openaiAPIKEY=openai_APIKEY).initialize()
     self.sem_s = _semantic_search().initialize()
-    self.askgoogle = _google_search().initialise()
+    self.askgoogle = _google_search().initialise(google_api_key=google_custom_api_key,search_engine_key=programmable_search_engine_api_key)
     self.agg_stat = _aggregated_stats().initialize(pathToCSV)
-    self.datasearch = _data_search().initialize()
+    self.datasearch = _data_search(openai_key=openai_APIKEY,path_csv_file=pathToCSV).initialize()
     self.action_descriptions= ["Ask generic health questions like - why is my blood pressure high ? what causes increase in heart rate ?, what leads to sudden drop in blood pressure ?, why increase in weight is a risk to heart ? why sudden loss of weight can be a risk to heart ? Similar health related queries accompanied with ask Ada. Ask Ada:",
                                "Perform semantic search given a query. Queries can be like find similar items",
                                "find over all statistics of the data given",
@@ -84,8 +87,17 @@ class Pipable():
     print("MODEL             DESCRIPTION")
     for i in range(len(self.model_ids)):
       print("{}                   :- {}".format(self.model_ids[i],self.action_descriptions[i]))
+  
+  def get_latest_output(self):
+    if len(self.results_proxy.output_objects) == 0:
+      print("No outputs found")
+      return
+    return self.results_proxy.output_objects[-1]._output
 
+  def get_all_outputs(self):
+    return [x._output for x in self.results_proxy.output_objects]
 
 # # sample usage
-# a = Pipable(pathToCSV="sample_data/alyf.csv")
-# a.ask("Get all patient ids and vital in the form of table that have vitals as Heart Rate and value between 100 to 150 between march to april 2023")
+#a = Pipable(pathToCSV="sample_data/alyf.csv")
+#a.ask("Get all patient ids and vital in the form of table that have vitals as Heart Rate and value between 100 to 150 between march to april 2023")
+#a.ask("What all risks are associated with the increase in the heart rate")

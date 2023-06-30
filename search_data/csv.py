@@ -4,18 +4,18 @@ from langchain.agents import create_pandas_dataframe_agent
 import json
 
 class _data_search():
-  def __init__(self, tempkey = "", openai = None, df = None, agent = None, agent_data = None):
+  def __init__(self, openai_key = "", openai = None, df = None, agent = None, agent_data = None,path_csv_file=""):
     super().__init__()
-    self.tempkey = tempkey
+    self.openai_key = openai_key
     self.openai = openai
     self.df = df
     self.agent = agent
     self.agent_data = agent_data
+    self.path_to_csv = path_csv_file
 
   def initialize(self):
-    self.tempkey = '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'
-    self.openai = OpenAI(temperature=0, openai_api_key=self.tempkey)
-    self.df = pd.read_csv("csv_files/alyf.csv")
+    self.openai = OpenAI(temperature=0, openai_api_key=self.openai_key)
+    self.df = pd.read_csv(self.path_to_csv)
     self.agent = create_pandas_dataframe_agent(self.openai, self.df, verbose=True)
     self.agent_data = create_pandas_dataframe_agent(self.openai, self.df, verbose=True, return_intermediate_steps=True)
     return self
@@ -59,8 +59,29 @@ class _data_search():
     string_data = obj.__str__()
     string_data = string_data.replace("'", "\"")
     json_data = json.loads(string_data)
-    return json_data
+    if "answer" in json_data:
+      return json_data
 
+    # Check if the response is a bar chart.
+    if "bar" in json_data:
+      data = json_data["bar"]
+      df = pd.DataFrame(data)
+      df.set_index("columns", inplace=True)
+      return df
+
+    # Check if the response is a line chart.
+    if "line" in json_data:
+      data = json_data["line"]
+      df = pd.DataFrame(data)
+      df.set_index("columns", inplace=True)
+      return df
+
+    # Check if the response is a table.
+    if "table" in json_data:
+      data = json_data["table"]
+      df = pd.DataFrame(data["data"], columns=data["columns"])
+      return df
+    
   # CSV data when returned is not as parseable as SQL data is, prefer natural language when using CSV
   def search_csv_data(self, query):
     response = self.agent_data({"input":query})

@@ -4,11 +4,12 @@ from IPython.display import HTML
 from IPython.display import display
 
 class _ada():
-  def __init__(self,ada_model=None,ada_tokenizer=None,open_ai=None,_google_search=None,ada_thread="",embedder=None,table=None):
+  def __init__(self,ada_model=None,ada_tokenizer=None,ada_thread="",embedder=None,table=None,openaiAPIKEY=""):
     super().__init__()
     self.ada_model=ada_model
     self.ada_tokenizer = ada_tokenizer
     self.ada_thread=ada_thread
+    self.openai_api_key = openaiAPIKEY
 
   def initialize(self):
     ada_thread=self.ada_thread
@@ -23,7 +24,7 @@ class _ada():
       query = ada_thread+". "+query
     import os
     import openai
-    openai.api_key ='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'
+    openai.api_key =self.openai_api_key
     completion = openai.ChatCompletion.create(model="gpt-3.5-turbo",
       messages=[
         {"role": "user","content":query }
