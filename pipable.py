@@ -98,6 +98,6 @@ class Pipable():
     return [x._output for x in self.results_proxy.output_objects]
 
 # # sample usage
-#a = Pipable(pathToCSV="sample_data/sample.csv", openaiKEY="OPENAI_API_KEY", googleCustomKEY="GOOGLE_CUSTOM_SEARCH_API_KEY", googleProgrammableKEY="GOOGLE_PROGRAMMABLE_SEARCH_ENGINE_API_KEY")
+# a = Pipable(pathToCSV="sample_data/sample.csv", openaiKEY="OPENAI_API_KEY", googleCustomKEY="GOOGLE_CUSTOM_SEARCH_API_KEY", googleProgrammableKEY="GOOGLE_PROGRAMMABLE_SEARCH_ENGINE_API_KEY")
 #a.ask("Get all patient ids and vital in the form of table that have vitals as Heart Rate and value between 100 to 150 between march to april 2023")
 #a.ask("What all risks are associated with the increase in the heart rate")
