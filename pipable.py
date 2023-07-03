@@ -37,12 +37,12 @@ class Pipable():
     self.askgoogle = _google_search().initialise(google_api_key=google_custom_api_key,search_engine_key=programmable_search_engine_api_key)
     self.agg_stat = _aggregated_stats().initialize(pathToCSV)
     self.datasearch = _data_search(openai_key=openai_APIKEY,path_csv_file=pathToCSV).initialize()
-    self.action_descriptions= ["Ask generic health questions like - why is my blood pressure high ? what causes increase in heart rate ?, what leads to sudden drop in blood pressure ?, why increase in weight is a risk to heart ? why sudden loss of weight can be a risk to heart ? Similar health related queries accompanied with ask Ada. Ask Ada:",
+    self.action_descriptions= ["Ask LLM. What leads to X. What leads to Y. Hi Ada let me know what is X. LLM based query. Open ai tell me why a happens.",
                                "Perform semantic search given a query. Queries can be like find similar items",
                                "find over all statistics of the data given",
                                "find correlation amongst different features",
                                "Query google to find answers to certain questions. Can you use google to get me the results, look at google , get search results , get reference links, do google search.",
-                               "Get me the results of all patients. Show me the results of a particular entity. Get me the list of entities where val > X. Analyse the data in a particular time period."]
+                               "Look in the table. Look in csv file. Evaluate the table. Find in table. Resolve dataframe . Write code to extract. Write queries to. Show me the results of a particular entity. Get me the list of entities where val > X. Analyse the data in a particular time period."]
     self.actions = [self.ada_.ask_ada,self.sem_s.find_similar_score,self.agg_stat.get_stats,self.agg_stat.get_corr,self.askgoogle.ask_google,self.datasearch.search_csv_natural]
     self.sem_s.create_key_vectors(self.action_descriptions)
     self.results_proxy = _proxy_results()

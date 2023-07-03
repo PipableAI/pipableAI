@@ -56,31 +56,37 @@ class _data_search():
         + query
     )
     obj = self.agent.run(prompt)
-    string_data = obj.__str__()
-    string_data = string_data.replace("'", "\"")
-    json_data = json.loads(string_data)
-    if "answer" in json_data:
-      return json_data
+    try:
+      string_data = obj.__str__()
+      string_data = string_data.replace("'", "\"")
+      json_data = json.loads(string_data)
+      if "answer" in json_data:
+        return json_data
 
-    # Check if the response is a bar chart.
-    if "bar" in json_data:
-      data = json_data["bar"]
-      df = pd.DataFrame(data)
-      df.set_index("columns", inplace=True)
-      return df
+      # Check if the response is a bar chart.
+      if "bar" in json_data:
+        data = json_data["bar"]
+        df = pd.DataFrame(data)
+        df.set_index("columns", inplace=True)
+        return df
 
-    # Check if the response is a line chart.
-    if "line" in json_data:
-      data = json_data["line"]
-      df = pd.DataFrame(data)
-      df.set_index("columns", inplace=True)
-      return df
+      # Check if the response is a line chart.
+      if "line" in json_data:
+        data = json_data["line"]
+        df = pd.DataFrame(data)
+        df.set_index("columns", inplace=True)
+        return df
 
-    # Check if the response is a table.
-    if "table" in json_data:
-      data = json_data["table"]
-      df = pd.DataFrame(data["data"], columns=data["columns"])
-      return df
+      # Check if the response is a table.
+      if "table" in json_data:
+        data = json_data["table"]
+        df = pd.DataFrame(data["data"], columns=data["columns"])
+        return df
+      
+    except Exception as e:
+      print("Error while parsing it to json.= object")
+      print(obj.__str__())
+
     
   # CSV data when returned is not as parseable as SQL data is, prefer natural language when using CSV
   def search_csv_data(self, query):
