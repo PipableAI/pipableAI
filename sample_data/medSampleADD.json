@@ -1,0 +1,8 @@
+{
+    "_ada":"Ask LLM. What leads to X. What leads to Y. Hi Ada let me know what is X. LLM based query. Open ai tell me why a happens.",
+    "_semantic_search":"Perform semantic search given a query. Queries can be like find similar items",
+    "agg_stats":"find over all statistics of the data given",
+    "agg_corr":"find correlation amongst different features",
+    "_google_search":"Query google to find answers to certain questions. Can you use google to get me the results, look at google , get search results , get reference links, do google search.",
+    "datasearch":"Look in the table. Look in csv file. Evaluate the table. Find in table. Resolve dataframe . Write code to extract. Write queries to. Show me the results of a particular entity. Get me the list of entities where val > X. Analyse the data in a particular time period."
+}

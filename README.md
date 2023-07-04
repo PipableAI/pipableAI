@@ -23,7 +23,8 @@ You can now use the `Pipable` class as follows:
 from pipable import Pipable
 
 a = Pipable(
-    pathToCSV="sample_data/sample.csv",
+    pathToCSV="sample_data/medSample.csv",
+    pathToADD="sample_data/medSampleADD.json",
     openaiKEY="OPENAI_API_KEY",
     googleCustomKEY="GOOGLE_CUSTOM_SEARCH_API_KEY",
     googleProgrammableKEY="GOOGLE_PROGRAMMABLE_SEARCH_ENGINE_API_KEY"
@@ -35,5 +36,7 @@ outputs = a.get_all_outputs()
 #List of all the outputs will be generated.
 
 ```
+
+> `ADD` stands for Action Description Dictionary.
 
 You can now ask pipable anything. Enjoy 🥳
