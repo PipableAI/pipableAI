@@ -8,5 +8,9 @@ accelerate
 xformers
 jax
 jaxlib
+"jax[cpu]"
 tabulate
 ipython
+pandas
+jupyter
+notebook

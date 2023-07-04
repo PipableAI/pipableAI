@@ -86,7 +86,7 @@ class _data_search():
     except Exception as e:
       print("Error while parsing it to json object!")
       print(obj.__str__())
-      return
+      return obj.__str__()
 
     
   # CSV data when returned is not as parseable as SQL data is, prefer natural language when using CSV
