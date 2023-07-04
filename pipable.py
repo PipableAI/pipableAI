@@ -12,7 +12,6 @@ class _proxy_results():
     self.ada_thread = ""
     self.action_list=[]
     self.output_objects = []
-    # self.model_list = ["_ada","sem-search","google-search","_aggregated_stats"]
 
   def update_ada_thread(self,thread):
     self.ada_thread = thread
@@ -29,7 +28,7 @@ class _output_obj():
     self._model_id = model_id
 
 class Pipable():
-  def __init__(self,pathToCSV = "",pathToADD = "",actions=[],func_desc=[], openaiKEY="", googleCustomKEY="", googleProgrammableKEY=""):
+  def __init__(self,pathToCSV = "",pathToADD = "", openaiKEY="", googleCustomKEY="", googleProgrammableKEY=""):
     super().__init__()
     openai_APIKEY = openaiKEY
     google_custom_api_key = googleCustomKEY
@@ -45,26 +44,32 @@ class Pipable():
     self.action_desc = json.load(_tempfile)
     _tempfile.close()
     
-    self.actions = [self.ada_.ask_ada,self.sem_s.find_similar_score,self.agg_stat.get_stats,self.agg_stat.get_corr,self.askgoogle.ask_google,self.datasearch.search_csv_natural]
+    self.key2method = {
+      "ada":self.ada_.ask_ada,
+      "semantic_search":self.sem_s.find_similar_score,
+      "agg_stats":self.agg_stat.get_stats,
+      "agg_corr":self.agg_stat.get_corr,
+      "google_search":self.askgoogle.ask_google,
+      "data_search":self.datasearch.search_csv_natural
+    }
+
     self.sem_s.create_key_vectors(list(self.action_desc.values()))
     self.results_proxy = _proxy_results()
-
-  def temp_ask(self,query):
-    #action_descriptions = self.action_descriptions
-    score = self.actions[1](query_list=query)
-    # action = self.actions[int(jnp.argmax(score))]
-    return int(jnp.argmax(score))
   
   def ask(self,query,model=""):
+    # model auto selection based on query
     if model == "":
-      model = list(self.action_desc.keys())[(self.temp_ask(query))]
+      score = int(jnp.argmax(self.sem_s.find_similar_score(query_list=query)))
+      model = list(self.action_desc.keys())[score]
+    # specified or auto selected model is valid
     if model in self.action_desc:
-      result = self.actions[list(self.action_desc).index(model)](query)
+      result = self.key2method[model](query)
       if model == "_ada":
         self.askgoogle.ask_google(result)
         self.results_proxy.update_ada_thread(result)
       self.results_proxy.update_action(model)
       self.results_proxy.update_outputobjs(_output_obj(output=result,model_id=model))
+    # specified model is invalid
     else:
       print(model, "- No such model found. Ensure that correct model_id is entered. Refer to .get_help() for model ids.")
     return
@@ -83,14 +88,3 @@ class Pipable():
 
   def get_all_outputs(self):
     return [x._output for x in self.results_proxy.output_objects]
-
-# # sample usage
-# a = Pipable(
-#   pathToCSV="sample_data/medSample.csv",
-#   pathToADD="sample_data/medSampleADD.json",
-#   openaiKEY="OPENAI_API_KEY",
-#   googleCustomKEY="GOOGLE_CUSTOM_SEARCH_API_KEY",
-#   googleProgrammableKEY="GOOGLE_PROGRAMMABLE_SEARCH_ENGINE_API_KEY"
-# )
-#a.ask("Get all patient ids and vital in the form of table that have vitals as Heart Rate and value between 100 to 150 between march to april 2023")
-#a.ask("What all risks are associated with the increase in the heart rate")
