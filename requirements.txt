@@ -3,6 +3,7 @@ langchain
 sentence-transformers
 jax
 jaxlib
+"jax[cpu]"
 google-api-python-client
 openai
 tabulate
