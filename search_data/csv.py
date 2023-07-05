@@ -35,7 +35,7 @@ class _csv_search():
             There can only be two types of chart, "bar" and "line".
 
             If it is just asking a question that requires neither, reply as follows:
-            {"answer": "answer"}
+            {"answer": "answer"} or if it is in a form of list then {"answer":["answer 1","answer 2"....]}
             Example:
             {"answer": "The title with the highest rating is 'Gilead'"}
 
@@ -61,32 +61,32 @@ class _csv_search():
       string_data = string_data.replace("'", "\"")
       json_data = json.loads(string_data)
       if "answer" in json_data:
-        return json_data
+        return (json_data,"normal")
 
       # Check if the response is a bar chart.
       if "bar" in json_data:
         data = json_data["bar"]
         df = pd.DataFrame(data)
         df.set_index("columns", inplace=True)
-        return df
+        return (df,"normal")
 
       # Check if the response is a line chart.
       if "line" in json_data:
         data = json_data["line"]
         df = pd.DataFrame(data)
         df.set_index("columns", inplace=True)
-        return df
+        return (df,"normal")
 
       # Check if the response is a table.
       if "table" in json_data:
         data = json_data["table"]
         df = pd.DataFrame(data["data"], columns=data["columns"])
-        return df
+        return (df,"normal")
       
     except Exception as e:
       print("Error while parsing it to json object!")
       print(obj.__str__())
-      return obj.__str__()
+      return (obj.__str__(),"error")
 
     
   # CSV data when returned is not as parseable as SQL data is, prefer natural language when using CSV
