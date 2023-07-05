@@ -12,6 +12,8 @@ class _proxy_results():
     self.ada_thread = ""
     self.action_list=[]
     self.output_objects = []
+    self.error_outputs = []
+    self.current_output_type = -1
 
   def update_ada_thread(self,thread):
     self.ada_thread = thread
@@ -20,7 +22,12 @@ class _proxy_results():
     self.action_list.append(model_id)
 
   def update_outputobjs(self,outputObj=None):
+    self.current_output_type = 0
     self.output_objects.append(outputObj)
+  
+  def update_error_outputobjs(self,outputObj=None):
+    self.current_output_type = 1
+    self.error_outputs.append(outputObj)
 
 class _output_obj():
   def __init__(self,output="",model_id=""):
@@ -64,11 +71,23 @@ class Pipable():
     # specified or auto selected model is valid
     if model in self.action_desc:
       result = self.key2method[model](query)
-      if model == "_ada":
-        self.askgoogle.ask_google(result)
+      
+      if model == "ada":
+        google_search_result = self.askgoogle.ask_google(result)
         self.results_proxy.update_ada_thread(result)
-      self.results_proxy.update_action(model)
-      self.results_proxy.update_outputobjs(_output_obj(output=result,model_id=model))
+        self.results_proxy.update_action([model,"google_search"])
+        self.results_proxy.update_outputobjs(_output_obj(output=[result,google_search_result],model_id=[model,"google_search"]))
+    
+      elif model == "data_search":
+        self.results_proxy.update_action(model)
+        if result[1] == "normal":
+          self.results_proxy.update_outputobjs(_output_obj(output=result[0],model_id=model))
+        else:
+          self.results_proxy.update_error_outputobjs(_output_obj(output=result[0],model_id=model))
+      
+      else:
+        self.results_proxy.update_action(model)
+        self.results_proxy.update_outputobjs(_output_obj(output=result,model_id=model))
     # specified model is invalid
     else:
       print(model, "- No such model found. Ensure that correct model_id is entered. Refer to .get_help() for model ids.")
@@ -81,10 +100,14 @@ class Pipable():
       print(i,"\t\t",self.action_desc[i])
   
   def get_latest_output(self):
-    if len(self.results_proxy.output_objects) == 0:
+    if self.results_proxy.current_output_type == -1:
       print("No outputs found")
       return
-    return self.results_proxy.output_objects[-1]._output
+    else:
+      if self.results_proxy.current_output_type == 0:
+        return self.results_proxy.output_objects[-1]._output
+      else:
+        return self.results_proxy.error_outputs[-1]._output
 
   def get_all_outputs(self):
     return [x._output for x in self.results_proxy.output_objects]

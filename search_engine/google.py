@@ -56,6 +56,7 @@ class _google_search():
     pprint(display(HTML('<span style="color:#DB4437">Ada: Is there anything else I can do ? You can check my action catalogue to know all my skills and you can use .correct_output, .output , .querry , .input , .actions, .ada_thread methods to check our peer development thread. </span>')))
     pprint(display(HTML('<span style="color:#0F9D58">Ada: You can also ask google or open ai using .ask_google() or .ask_open_ai() methods </span>')))
     # return self
+    return list(zip(list_of_urls,list_of_snippets))
 
   def get_latest_google_search_results(self):
     num_of_results = len(self.past_snippets)
