@@ -3,7 +3,7 @@ from langchain.llms.openai import OpenAI
 from langchain.agents import create_pandas_dataframe_agent
 import json
 
-class _data_search():
+class _csv_search():
   def __init__(self, openai_key = "", openai = None, df = None, agent = None, agent_data = None,path_csv_file=""):
     super().__init__()
     self.openai_key = openai_key
@@ -20,7 +20,7 @@ class _data_search():
     self.agent_data = create_pandas_dataframe_agent(self.openai, self.df, verbose=True, return_intermediate_steps=True)
     return self
 
-  def search_csv_natural(self, query):
+  def search_data_natural(self, query):
     prompt = (
         """
             For the following query, if it requires drawing a table, reply as follows:
@@ -90,6 +90,6 @@ class _data_search():
 
     
   # CSV data when returned is not as parseable as SQL data is, prefer natural language when using CSV
-  def search_csv_data(self, query):
+  def search_data(self, query):
     response = self.agent_data({"input":query})
     return response["intermediate_steps"][-1]

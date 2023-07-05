@@ -8,6 +8,7 @@ google-api-python-client
 openai
 tabulate
 ipython
+psycopg2-binary
 transformers
 einops
 accelerate

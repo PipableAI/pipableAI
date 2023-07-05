@@ -1,5 +1,7 @@
 from search_data.aggregated_stats import _aggregated_stats
-from search_data.csv import _data_search
+from search_data.csv import _csv_search
+from search_data.postgres import _postgres_search
+#from search_data.mysql import _mysql_search
 from search_data.semantic import _semantic_search
 from search_engine.ada import _ada
 from search_engine.google import _google_search
@@ -28,7 +30,7 @@ class _output_obj():
     self._model_id = model_id
 
 class Pipable():
-  def __init__(self,pathToCSV = "",pathToADD = "", openaiKEY="", googleCustomKEY="", googleProgrammableKEY=""):
+  def __init__(self, dataType = "", PGname = "", PGhost = "", PGuser = "", PGpass = "", PGport = "" , pathToData = "", pathToADD = "", openaiKEY="", googleCustomKEY="", googleProgrammableKEY=""):
     super().__init__()
     openai_APIKEY = openaiKEY
     google_custom_api_key = googleCustomKEY
@@ -37,8 +39,24 @@ class Pipable():
     self.ada_ = _ada(openaiAPIKEY=openai_APIKEY).initialize()
     self.sem_s = _semantic_search().initialize()
     self.askgoogle = _google_search().initialise(google_api_key=google_custom_api_key,search_engine_key=programmable_search_engine_api_key)
-    self.agg_stat = _aggregated_stats().initialize(pathToCSV)
-    self.datasearch = _data_search(openai_key=openai_APIKEY,path_csv_file=pathToCSV).initialize()
+
+    if dataType == "csv":
+      self.datasearch = _csv_search(openai_key=openai_APIKEY,path_csv_file=pathToData).initialize()
+      self.agg_stat = _aggregated_stats().initialize(pathToData)
+    elif dataType == "mysql":
+      # self.datasearch = _mysql_search(openai_key=openai_APIKEY,path_sql_file=pathToData).initialize()
+      # URGENT -> need to implement aggregated stats for mysql
+      print("ERROR: mysql data type not yet implemented. Valid data types are csv and postgres.")
+    elif dataType == "postgres":
+      print("debug before PG init")
+      self.datasearch = _postgres_search(openai_key=openai_APIKEY,PGname=PGname,PGhost=PGhost,PGuser=PGuser,PGpass=PGpass,PGport=PGport).initialize()
+      print("debug after PG init")
+      # URGENT -> need to implement aggregated stats for postgres
+    elif dataType == "json":
+      print("ERROR: json data type not yet implemented. Valid data types are csv and postgres.")
+    else:
+      print("Error: no valid data type specified. Valid data types are csv and postgres.")
+      return -1
 
     _tempfile = open(pathToADD)
     self.action_desc = json.load(_tempfile)
@@ -50,7 +68,7 @@ class Pipable():
       "agg_stats":self.agg_stat.get_stats,
       "agg_corr":self.agg_stat.get_corr,
       "google_search":self.askgoogle.ask_google,
-      "data_search":self.datasearch.search_csv_natural
+      "data_search":self.datasearch.search_data_natural
     }
 
     self.sem_s.create_key_vectors(list(self.action_desc.values()))
