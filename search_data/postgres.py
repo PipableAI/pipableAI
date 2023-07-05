@@ -1,10 +1,10 @@
-import psycopg2
+#import psycopg2
 from langchain.llms.openai import OpenAI
 from langchain.sql_database import SQLDatabase
 from langchain import SQLDatabaseChain
 
 class _postgres_search():
-  def __init__(self, openai_key = "", openai = None, PGname = "", PGhost = "", PGuser = "", PGpass = "", PGport = "", cursor = None, conn = None, db = None, agent = None):
+  def __init__(self, openai_key = "", openai = None, PGname = "", PGhost = "", PGuser = "", PGpass = "", PGport = 5432, cursor = None, conn = None, db = None, agent = None):
     super().__init__()
     self.openai_key = openai_key
     self.openai = openai
@@ -19,7 +19,6 @@ class _postgres_search():
     self.agent = agent
 
   def initialize(self):
-    print("debug before AI init")
     self.openai = OpenAI(temperature=0, openai_api_key=self.openai_key)
 
     # print("debug before psycopg2 init")
@@ -33,8 +32,12 @@ class _postgres_search():
     # self.cur = self.conn.cursor()
 
     print("debug before SQLDatabase init")
+    # self.db = SQLDatabase.from_uri(
+    #   f"postgresql+psycopg2://{self.PGuser}:{self.PGpass}@{self.PGhost}:{self.PGport}/{self.PGname}",
+    # )
+
     self.db = SQLDatabase.from_uri(
-      f"postgresql+psycopg2://{self.PGuser}:{self.PGpass}@{self.PGhost}:{self.PGport}/{self.PGname}",
+      f"postgresql://{self.PGuser}:{self.PGpass}@{self.PGhost}:{self.PGport}/{self.PGname}",
     )
 
     print("debug before SQLDatabaseChain init")

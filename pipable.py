@@ -1,7 +1,6 @@
 from search_data.aggregated_stats import _aggregated_stats
 from search_data.csv import _csv_search
 from search_data.postgres import _postgres_search
-#from search_data.mysql import _mysql_search
 from search_data.semantic import _semantic_search
 from search_engine.ada import _ada
 from search_engine.google import _google_search
@@ -37,7 +36,7 @@ class _output_obj():
     self._model_id = model_id
 
 class Pipable():
-  def __init__(self, dataType = "", PGname = "", PGhost = "", PGuser = "", PGpass = "", PGport = "" , pathToData = "", pathToADD = "", openaiKEY="", googleCustomKEY="", googleProgrammableKEY=""):
+  def __init__(self, dataType = "", PGname = "", PGhost = "", PGuser = "", PGpass = "", PGport = 5432 , pathToData = "", pathToADD = "", openaiKEY="", googleCustomKEY="", googleProgrammableKEY=""):
     super().__init__()
     openai_APIKEY = openaiKEY
     google_custom_api_key = googleCustomKEY
@@ -50,15 +49,11 @@ class Pipable():
     if dataType == "csv":
       self.datasearch = _csv_search(openai_key=openai_APIKEY,path_csv_file=pathToData).initialize()
       self.agg_stat = _aggregated_stats().initialize(pathToData)
-    elif dataType == "mysql":
-      # self.datasearch = _mysql_search(openai_key=openai_APIKEY,path_sql_file=pathToData).initialize()
-      # URGENT -> need to implement aggregated stats for mysql
-      print("ERROR: mysql data type not yet implemented. Valid data types are csv and postgres.")
     elif dataType == "postgres":
-      print("debug before PG init")
       self.datasearch = _postgres_search(openai_key=openai_APIKEY,PGname=PGname,PGhost=PGhost,PGuser=PGuser,PGpass=PGpass,PGport=PGport).initialize()
-      print("debug after PG init")
       # URGENT -> need to implement aggregated stats for postgres
+    elif dataType == "mysql":
+      print("ERROR: mysql data type not yet implemented. Valid data types are csv and postgres.")
     elif dataType == "json":
       print("ERROR: json data type not yet implemented. Valid data types are csv and postgres.")
     else:
