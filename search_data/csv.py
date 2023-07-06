@@ -19,7 +19,7 @@ class _data_search():
     self.df_schema+="})" 
     return self
 
-  def search_csv_natural(self, query):
+  def search_data_natural(self, query):
     prompt = (
         '''
         Only return the pandas query.
@@ -46,8 +46,9 @@ class _data_search():
       self._queries.append((obj,"error"))
       return (obj,"error")
 
+
   # CSV data when returned is not as parseable as SQL data is, prefer natural language when using CSV
-  def search_csv_data(self, query):
+  def search_data(self, query):
     response = self.agent_data({"input":query})
     return (response["intermediate_steps"][-1],"normal")
   

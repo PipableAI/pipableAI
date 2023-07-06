@@ -23,7 +23,8 @@ You can now use the `Pipable` class as follows:
 from pipable import Pipable
 
 a = Pipable(
-    pathToCSV="sample_data/medSample.csv",
+    dataType="csv",
+    pathToData="sample_data/medSample.csv",
     pathToADD="sample_data/medSampleADD.json",
     openaiKEY="OPENAI_API_KEY",
     googleCustomKEY="GOOGLE_CUSTOM_SEARCH_API_KEY",
