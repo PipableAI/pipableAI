@@ -2,7 +2,7 @@ import pandas as pd
 import json
 import openai
 
-class _data_search():
+class _csv_search():
   def __init__(self, openai_key = "", df = None,path_csv_file=""):
     super().__init__()
     self.openai_key = openai_key

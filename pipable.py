@@ -64,11 +64,7 @@ class Pipable():
       print("ERROR: json data type not yet implemented. Valid data types are csv and postgres.")
     else:
       print("Error: no valid data type specified. Valid data types are csv and postgres.")
-      return -1
-
-    _tempfile = open(pathToADD)
-    self.action_desc = json.load(_tempfile)
-    _tempfile.close()
+      return None
     
     self.key2method = {
       "ada":self.ada_.ask_ada,
