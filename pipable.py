@@ -6,6 +6,7 @@ from search_engine.google import _google_search
 
 import jax.numpy as jnp
 import json
+import pandas as pd
 
 class _proxy_results():
   def __init__(self):
@@ -41,15 +42,16 @@ class Pipable():
     google_custom_api_key = googleCustomKEY
     programmable_search_engine_api_key = googleProgrammableKEY
 
+    _tempfile = open(pathToADD)
+    self.action_desc = json.load(_tempfile)
+    _schema=self.action_desc.pop("schema")
+    _tempfile.close()
+
     self.ada_ = _ada(openaiAPIKEY=openai_APIKEY).initialize()
     self.sem_s = _semantic_search().initialize()
     self.askgoogle = _google_search().initialise(google_api_key=google_custom_api_key,search_engine_key=programmable_search_engine_api_key)
     self.agg_stat = _aggregated_stats().initialize(pathToCSV)
-    self.datasearch = _data_search(openai_key=openai_APIKEY,path_csv_file=pathToCSV).initialize()
-
-    _tempfile = open(pathToADD)
-    self.action_desc = json.load(_tempfile)
-    _tempfile.close()
+    self.datasearch = _data_search(openai_key=openai_APIKEY,path_csv_file=pathToCSV).initialize(schema=_schema)
     
     self.key2method = {
       "ada":self.ada_.ask_ada,
@@ -84,7 +86,6 @@ class Pipable():
           self.results_proxy.update_outputobjs(_output_obj(output=result[0],model_id=model))
         else:
           self.results_proxy.update_error_outputobjs(_output_obj(output=result[0],model_id=model))
-      
       else:
         self.results_proxy.update_action(model)
         self.results_proxy.update_outputobjs(_output_obj(output=result,model_id=model))
@@ -110,4 +111,4 @@ class Pipable():
         return self.results_proxy.error_outputs[-1]._output
 
   def get_all_outputs(self):
-    return [x._output for x in self.results_proxy.output_objects]
+    return {"outputs":[x._output for x in self.results_proxy.output_objects],"errors":[x._output for x in self.results_proxy.error_outputs]}

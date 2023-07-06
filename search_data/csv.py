@@ -1,95 +1,55 @@
 import pandas as pd
-from langchain.llms.openai import OpenAI
-from langchain.agents import create_pandas_dataframe_agent
 import json
+import openai
 
 class _data_search():
-  def __init__(self, openai_key = "", openai = None, df = None, agent = None, agent_data = None,path_csv_file=""):
+  def __init__(self, openai_key = "", df = None,path_csv_file=""):
     super().__init__()
     self.openai_key = openai_key
-    self.openai = openai
     self.df = df
-    self.agent = agent
-    self.agent_data = agent_data
     self.path_to_csv = path_csv_file
+    self.df_schema = ""
+    self._queries=[]
 
-  def initialize(self):
-    self.openai = OpenAI(temperature=0, openai_api_key=self.openai_key)
+  def initialize(self,schema):
     self.df = pd.read_csv(self.path_to_csv)
-    self.agent = create_pandas_dataframe_agent(self.openai, self.df, verbose=True)
-    self.agent_data = create_pandas_dataframe_agent(self.openai, self.df, verbose=True, return_intermediate_steps=True)
+    self.df_schema = "df = pd.DataFrame({"
+    for i in range(len(schema["keys"])):
+      self.df_schema += "{}:{} #{}".format(schema["keys"][i],schema["dataTypes"][i],schema["descriptors"][i])
+    self.df_schema+="})" 
     return self
 
   def search_csv_natural(self, query):
     prompt = (
-        """
-            For the following query, if it requires drawing a table, reply as follows:
-            {"table": {"columns": ["column1", "column2", ...], "data": [[value1, value2, ...], [value1, value2, ...], ...]}}
+        '''
+        Only return the pandas query.
 
-            If the query requires creating a bar chart,  reply as follows:
-            {"bar": {"columns": ["A", "B", "C", ...], "data": [25, 24, 10, ...]}}
-
-            If the query requires creating a line chart, reply as follows:
-            {"line": {"columns": ["A", "B", "C", ...], "data": [25, 24, 10, ...]}}
-
-            There can only be two types of chart, "bar" and "line".
-
-            If it is just asking a question that requires neither, reply as follows:
-            {"answer": "answer"} or if it is in a form of list then {"answer":["answer 1","answer 2"....]}
-            Example:
-            {"answer": "The title with the highest rating is 'Gilead'"}
-
-            If you do not know the answer, reply as follows:
-            {"answer": "I do not know."}
-
-            Return all output as a string.
-
-            All strings in "columns" list and data list, should be in double quotes,
-
-            For example: {"columns": ["title", "ratings_count"], "data": [["Gilead", 361], ["Spider's Web", 5164]]}
-
-            Lets think step by step.
-
-            Below is the query.
-            Query:
-            """
-        + query
+        Don't return any comments.
+        
+    '''
+        + self.df_schema + "Task :" + query
     )
-    obj = self.agent.run(prompt)
+    openai.api_key =self.openai_key
+    completion = openai.ChatCompletion.create(temperature=0.8,model="gpt-3.5-turbo",
+      messages=[
+        {"role": "user","content":prompt }
+      ]
+    )
+    obj = completion.choices[0].message.content
     try:
-      string_data = obj.__str__()
-      string_data = string_data.replace("'", "\"")
-      json_data = json.loads(string_data)
-      if "answer" in json_data:
-        return (json_data,"normal")
-
-      # Check if the response is a bar chart.
-      if "bar" in json_data:
-        data = json_data["bar"]
-        df = pd.DataFrame(data)
-        df.set_index("columns", inplace=True)
-        return (df,"normal")
-
-      # Check if the response is a line chart.
-      if "line" in json_data:
-        data = json_data["line"]
-        df = pd.DataFrame(data)
-        df.set_index("columns", inplace=True)
-        return (df,"normal")
-
-      # Check if the response is a table.
-      if "table" in json_data:
-        data = json_data["table"]
-        df = pd.DataFrame(data["data"], columns=data["columns"])
-        return (df,"normal")
-      
+      df = self.df
+      df4 = eval(obj)
+      self._queries.append((obj,"normal"))
+      return (df4,"normal")
     except Exception as e:
-      print("Error while parsing it to json object!")
-      print(obj.__str__())
-      return (obj.__str__(),"error")
+      print("Some error has occured!")
+      self._queries.append((obj,"error"))
+      return (obj,"error")
 
-    
   # CSV data when returned is not as parseable as SQL data is, prefer natural language when using CSV
   def search_csv_data(self, query):
     response = self.agent_data({"input":query})
-    return response["intermediate_steps"][-1]
+    return (response["intermediate_steps"][-1],"normal")
+  
+  def get_queries(self):
+    return self._queries
