@@ -32,6 +32,13 @@ class _proxy_results():
   def update_error_outputobjs(self,outputObj=None):
     self.current_output_type = 1
     self.error_outputs.append(outputObj)
+  
+  def reset_outputs(self):
+    self.output_objects = []
+    self.error_outputs = []
+    self.current_output_type = -1
+    self.ada_thread = ""
+    self.action_list = []
 
 class _output_obj():
   def __init__(self,output="",model_id=""):
@@ -126,3 +133,7 @@ class Pipable():
 
   def get_all_outputs(self):
     return {"outputs":[x._output for x in self.results_proxy.output_objects],"errors":[x._output for x in self.results_proxy.error_outputs]}
+  
+  def reset_chain(self):
+    self.results_proxy.reset_outputs()
+    
