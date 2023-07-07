@@ -1,7 +1,4 @@
-import json
-
 import jax.numpy as jnp
-import pandas as pd
 import yaml
 
 from search_data.csv import _csv_search
@@ -65,7 +62,7 @@ class Pipable():
     if dataType == "csv":
       self.datasearch = _csv_search(openai_key=openai_APIKEY,path_csv_file=config["pathToData"]).initialize(schema = config["schema"])
     elif dataType == "postgres":
-      self.datasearch = _postgres_search(openai_key=openai_APIKEY,PGname=config["pathToData"]["pgdata"],PGhost=config["pathToData"]["pghost"],PGuser=config["pathToData"]["pguser"],PGpass=config["pathToData"]["pgpass"],PGport=config["pathToData"]["pgport"], PGsche=config["pathToData"]["pgsche"]).initialize()
+      self.datasearch = _postgres_search(openai_key=openai_APIKEY,PGname=config["pathToData"]["pgdata"],PGhost=config["pathToData"]["pghost"],PGuser=config["pathToData"]["pguser"],PGpass=config["pathToData"]["pgpass"],PGport=config["pathToData"]["pgport"], PGsche=config["pathToData"]["pgsche"]).initialize(schema = config["schema"])
     elif dataType == "mysql":
       print("ERROR: mysql data type not yet implemented. Valid data types are csv and postgres.")
     elif dataType == "json":

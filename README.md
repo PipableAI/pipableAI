@@ -22,22 +22,14 @@ You can now use the `Pipable` class as follows:
 ```python
 from pipable import Pipable
 
-a = Pipable(
-    dataType="csv",
-    pathToData="sample_data/medSample.csv",
-    pathToADD="sample_data/medSampleADD.json",
-    openaiKEY="OPENAI_API_KEY",
-    googleCustomKEY="GOOGLE_CUSTOM_SEARCH_API_KEY",
-    googleProgrammableKEY="GOOGLE_PROGRAMMABLE_SEARCH_ENGINE_API_KEY"
-)
+a = Pipable("sample_data/configCSV.yaml")
 
 a.ask("Get all patient ids and vital in the form of table that have vitals as Heart Rate and value between 100 to 150 between march to april 2023")
 
 outputs = a.get_all_outputs()
-#List of all the outputs will be generated.
 
 ```
 
-> `ADD` stands for Action Description Dictionary.
+The `sample_data` folder contains multiple `yaml` config files for different types of data. Do reference their structure to create your own config files.
 
 You can now ask pipable anything. Enjoy 🥳
