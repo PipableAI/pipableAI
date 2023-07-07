@@ -1,5 +1,3 @@
-import json
-
 import openai
 import pandas as pd
 
@@ -23,26 +21,20 @@ class _csv_search():
 
   def search_data_natural(self, query):
     prompt = (
-        '''
-        Only return the pandas query.
-
-        Don't return any comments.
-        
-    '''
+        "Only return the pandas query. Don't return any comments."
         + self.df_schema + "Task :" + query
     )
     openai.api_key =self.openai_key
-    completion = openai.ChatCompletion.create(temperature=0.8,model="gpt-3.5-turbo",
-      messages=[
-        {"role": "user","content":prompt }
-      ]
+    completion = openai.ChatCompletion.create(
+      temperature=0.8,
+      model="gpt-3.5-turbo",
+      messages=[{"role": "user","content":prompt }]
     )
     obj = completion.choices[0].message.content
     try:
-      df = self.df
-      df4 = eval(obj)
+      df = eval(obj)
       self._queries.append((obj,"normal"))
-      return (df4,"normal")
+      return (df,"normal")
     except Exception as e:
       print("Some error has occured!")
       self._queries.append((obj,"error"))

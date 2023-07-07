@@ -1,14 +1,12 @@
-#import psycopg2
-from langchain import SQLDatabaseChain
-from langchain.llms.openai import OpenAI
-from langchain.sql_database import SQLDatabase
+import openai
+import pandas as pd
+import psycopg2
 
 
 class _postgres_search():
   def __init__(self, openai_key = "", openai = None, PGname = "", PGhost = "", PGuser = "", PGpass = "", PGport = 5432, PGsche = "", cursor = None, conn = None, db = None, agent = None):
     super().__init__()
     self.openai_key = openai_key
-    self.openai = openai
     self.PGname = PGname
     self.PGhost = PGhost
     self.PGuser = PGuser
@@ -17,53 +15,101 @@ class _postgres_search():
     self.PGsche = PGsche
     self.cur = cursor
     self.conn = conn
-    self.db = db
-    self.agent = agent
+    self.pg_schema = ""
+    self._queries=[]
 
-  def initialize(self):
-    self.openai = OpenAI(temperature=0, openai_api_key=self.openai_key)
-
-    # print("debug before psycopg2 init")
-    # self.conn = psycopg2.connect(
-    #   dbname=self.PGname,
-    #   user=self.PGuser,
-    #   password=self.PGpass,
-    #   host=self.PGhost,
-    #   port=self.PGport
-    # )
-    # self.cur = self.conn.cursor()
-
-    print("debug before SQLDatabase init")
-    # self.db = SQLDatabase.from_uri(
-    #   f"postgresql+psycopg2://{self.PGuser}:{self.PGpass}@{self.PGhost}:{self.PGport}/{self.PGname}",
-    # )
-
-    self.db = SQLDatabase.from_uri(
-      f"postgresql://{self.PGuser}:{self.PGpass}@{self.PGhost}:{self.PGport}/{self.PGname}",
+  def initialize(self, schema):
+    self.conn = psycopg2.connect(
+      user=self.PGuser,
+      password=self.PGpass,
+      host=self.PGhost,
+      port=self.PGport,
+      database=self.PGname,
+      options=f"-c search_path={self.PGsche}"
     )
-
-    print("debug before SQLDatabaseChain init")
-    self.agent = SQLDatabaseChain.from_llm(llm = self.openai, db = self.db, verbose=True)
-
+    self.cur = self.conn.cursor()
+    for i in schema:
+      self.pg_schema += "{}(".format(i)
+      for j in schema[i]['keys']:
+        self.pg_schema += "{}, ".format(j)
+      self.pg_schema += "\b\b)\n"
     return self
 
   def search_data_natural(self, query):
     prompt = (
-        """
-            Given an input question, first create a syntactically correct postgresql query to run, then look at the results of the query and return the answer.
-            Use the following format:
-
-            Question: "Question here"
-            SQLQuery: "SQL Query to run"
-            SQLResult: "Result of the SQLQuery"
-            Answer: "Final answer here"
-
-            {question}
-
-              def search_data(self, query):
-                pass
-        """
-        + query
+        " Only return the postgres query. Don't return any comments."
+        + self.pg_schema + "Task :" + query
     )
-    obj = self.agent({"query":prompt})
-    return obj["answer"]
+    openai.api_key =self.openai_key
+    completion = openai.ChatCompletion.create(
+      temperature=0.8,
+      model="gpt-3.5-turbo",
+      messages=[{"role": "user","content":prompt }]
+    )
+    obj = completion.choices[0].message.content
+    try:
+      self.cur.execute(obj)
+      df = pd.DataFrame(self.cur.fetchall())
+      self._queries.append((obj,"normal"))
+      return (df,"normal")
+    except Exception as e:
+      print("Some error has occured!")
+      self._queries.append((obj,"error"))
+      return (obj,"error")
+  
+  def get_queries(self):
+    return self._queries
+  
+
+
+
+
+
+# import os
+# import openai
+
+# openai.api_key = os.getenv("OPENAI_API_KEY")
+
+# response = openai.Completion.create(
+  # model="text-davinci-003",
+  # prompt="### Postgres SQL tables, with their properties:\n#\n# Employee(id, name, department_id)\n# Department(id, name, address)\n# Salary_Payments(id, employee_id, amount, date)\n#\n### A query to list the names of the departments which employed more than 10 employees in the last 3 months\nSELECT",
+  # temperature=0,
+  # max_tokens=150,
+  # top_p=1.0,
+  # frequency_penalty=0.0,
+  # presence_penalty=0.0,
+  # stop=["#", ";"]
+# )
+
+# Employee:
+#   keys:
+#     - id
+#     - name
+#     - department_id
+#   dataTypes:
+#     - int
+#     - string
+#     - int
+#   descriptors:
+# Department:
+#   keys:
+#     - id
+#     - name
+#     - address
+#   dataTypes:
+#     - int
+#     - string
+#     - string
+#   descriptors:
+# Salary_Payments:
+#   keys:
+#     - id
+#     - employee_id
+#     - amount
+#     - date
+#   dataTypes:
+#     - int
+#     - int
+#     - int
+#     - date
+#   descriptors:
