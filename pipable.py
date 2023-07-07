@@ -1,4 +1,3 @@
-from search_data.aggregated_stats import _aggregated_stats
 from search_data.csv import _csv_search
 from search_data.postgres import _postgres_search
 from search_data.semantic import _semantic_search
@@ -54,10 +53,8 @@ class Pipable():
 
     if dataType == "csv":
       self.datasearch = _csv_search(openai_key=openai_APIKEY,path_csv_file=pathToData).initialize(schema = _schema)
-      self.agg_stat = _aggregated_stats().initialize(pathToData)
     elif dataType == "postgres":
       self.datasearch = _postgres_search(openai_key=openai_APIKEY,PGname=PGname,PGhost=PGhost,PGuser=PGuser,PGpass=PGpass,PGport=PGport).initialize()
-      # URGENT -> need to implement aggregated stats for postgres
     elif dataType == "mysql":
       print("ERROR: mysql data type not yet implemented. Valid data types are csv and postgres.")
     elif dataType == "json":
@@ -69,8 +66,6 @@ class Pipable():
     self.key2method = {
       "ada":self.ada_.ask_ada,
       "semantic_search":self.sem_s.find_similar_score,
-      "agg_stats":self.agg_stat.get_stats,
-      "agg_corr":self.agg_stat.get_corr,
       "google_search":self.askgoogle.ask_google,
       "data_search":self.datasearch.search_data_natural
     }
