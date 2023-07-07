@@ -9,6 +9,7 @@ openai
 tabulate
 ipython
 psycopg2-binary
+pyyaml
 transformers
 einops
 accelerate

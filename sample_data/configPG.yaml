@@ -1,0 +1,20 @@
+dataType: postgres
+
+pathToData:
+  pguser: 'pipable'
+  pgpass: 'pipable'
+  pghost: '34.82.20.16'
+  pgdata: 'postgres'
+  pgsche: 'alyf'
+  pgtabl: 'alyf_asvs'
+
+keys:
+  openAI: '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'
+  google: 'AIzaSyB88bY1dmo50Pp9dSTzln-JqhsfV_CSW2o'
+  search_engine: '336ee76d0d6af4acd'
+
+action_desc:
+  ada: "Ask LLM. What leads to X. What leads to Y. Hi Ada let me know what is X. LLM based query. Open ai tell me why a happens."
+  semantic_search: "Perform semantic search given a query. Queries can be like find similar items"
+  google_search: "Query google to find answers to certain questions. Can you use google to get me the results, look at google , get search results , get reference links, do google search."
+  data_search: "Look in the table. Look in csv file. Evaluate the table. Find in table. Resolve dataframe . Write code to extract. Write queries to. Show me the results of a particular entity. Get me the list of entities where val > X. Analyse the data in a particular time period."

@@ -39,25 +39,26 @@ class _output_obj():
     self._model_id = model_id
 
 class Pipable():
-  def __init__(self, dataType = "", PGname = "", PGhost = "", PGuser = "", PGpass = "", PGport = 5432 , pathToData = "", pathToADD = "", openaiKEY="", googleCustomKEY="", googleProgrammableKEY=""):
+  def __init__(self, path = ""):
     super().__init__()
-    openai_APIKEY = openaiKEY
-    google_custom_api_key = googleCustomKEY
-    programmable_search_engine_api_key = googleProgrammableKEY
+    
+    with open(path) as f:
+      config = yaml.safe_load(f)
 
-    _tempfile = open(pathToADD)
-    self.action_desc = json.load(_tempfile)
-    _schema=self.action_desc.pop("schema")
-    _tempfile.close()
+    openai_APIKEY = config["keys"]["openAI"]
+    google_custom_api_key = config["keys"]["google"]
+    programmable_search_engine_api_key = config["keys"]["search_engine"]
 
     self.ada_ = _ada(openaiAPIKEY=openai_APIKEY).initialize()
     self.sem_s = _semantic_search().initialize()
     self.askgoogle = _google_search().initialise(google_api_key=google_custom_api_key,search_engine_key=programmable_search_engine_api_key)
 
+    dataType = config["dataType"]
+
     if dataType == "csv":
-      self.datasearch = _csv_search(openai_key=openai_APIKEY,path_csv_file=pathToData).initialize(schema = _schema)
+      self.datasearch = _csv_search(openai_key=openai_APIKEY,path_csv_file=config["pathToData"]).initialize(schema = config["schema"])
     elif dataType == "postgres":
-      self.datasearch = _postgres_search(openai_key=openai_APIKEY,PGname=PGname,PGhost=PGhost,PGuser=PGuser,PGpass=PGpass,PGport=PGport).initialize()
+      self.datasearch = _postgres_search(openai_key=openai_APIKEY,PGname=config["pathToData"]["pgdata"],PGhost=config["pathToData"]["pghost"],PGuser=config["pathToData"]["pguser"],PGpass=config["pathToData"]["pgpass"],PGport=config["pathToData"]["pgport"]).initialize()
     elif dataType == "mysql":
       print("ERROR: mysql data type not yet implemented. Valid data types are csv and postgres.")
     elif dataType == "json":
@@ -72,6 +73,8 @@ class Pipable():
       "google_search":self.askgoogle.ask_google,
       "data_search":self.datasearch.search_data_natural
     }
+
+    self.action_desc = config["action_desc"]
 
     self.sem_s.create_key_vectors(list(self.action_desc.values()))
     self.results_proxy = _proxy_results()
