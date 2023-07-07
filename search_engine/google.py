@@ -1,9 +1,10 @@
-from googleapiclient.discovery import build
 import re
 from html import unescape
 from pprint import pprint
-from IPython.display import HTML
-from IPython.display import display
+
+from googleapiclient.discovery import build
+from IPython.display import HTML, display
+
 
 class _google_search():
   def __init__(self,_google_search=None,frame=None,

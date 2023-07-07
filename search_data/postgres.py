@@ -1,7 +1,8 @@
 #import psycopg2
+from langchain import SQLDatabaseChain
 from langchain.llms.openai import OpenAI
 from langchain.sql_database import SQLDatabase
-from langchain import SQLDatabaseChain
+
 
 class _postgres_search():
   def __init__(self, openai_key = "", openai = None, PGname = "", PGhost = "", PGuser = "", PGpass = "", PGport = 5432, cursor = None, conn = None, db = None, agent = None):

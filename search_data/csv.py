@@ -1,6 +1,8 @@
-import pandas as pd
 import json
+
 import openai
+import pandas as pd
+
 
 class _csv_search():
   def __init__(self, openai_key = "", df = None,path_csv_file=""):

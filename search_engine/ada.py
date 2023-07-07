@@ -1,7 +1,8 @@
 import copy
 from pprint import pprint
-from IPython.display import HTML
-from IPython.display import display
+
+from IPython.display import HTML, display
+
 
 class _ada():
   def __init__(self,ada_model=None,ada_tokenizer=None,ada_thread="",embedder=None,table=None,openaiAPIKEY=""):
@@ -23,6 +24,7 @@ class _ada():
     else:
       query = ada_thread+". "+query
     import os
+
     import openai
     openai.api_key =self.openai_api_key
     completion = openai.ChatCompletion.create(model="gpt-3.5-turbo",
