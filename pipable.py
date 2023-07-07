@@ -92,7 +92,7 @@ class Pipable():
         google_search_result = self.askgoogle.ask_google(result)
         self.results_proxy.update_ada_thread(result)
         self.results_proxy.update_action([model,"google_search"])
-        self.results_proxy.update_outputobjs(_output_obj(output=[result,google_search_result],model_id=[model,"google_search"]))
+        self.results_proxy.update_outputobjs(_output_obj(output={"summary":result,"sources":google_search_result},model_id=[model,"google_search"]))
     
       elif model == "data_search":
         self.results_proxy.update_action(model)
