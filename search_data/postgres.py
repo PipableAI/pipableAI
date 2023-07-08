@@ -49,6 +49,7 @@ class _postgres_search():
       messages=[{"role": "user","content":prompt }]
     )
     obj = completion.choices[0].message.content
+    print(obj)
     try:
       self.cur.execute(obj)
       df = pd.DataFrame(self.cur.fetchall())
