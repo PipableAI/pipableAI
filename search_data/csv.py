@@ -31,6 +31,7 @@ class _csv_search():
       messages=[{"role": "user","content":prompt }]
     )
     obj = completion.choices[0].message.content
+    print(obj)
     try:
       df = eval(obj)
       self._queries.append((obj,"normal"))
