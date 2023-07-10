@@ -2,4 +2,4 @@
 __pycache__/
 .ipynb_checkpoints
 dump.txt
-./parquet_files/
+parquet_files/
