@@ -3,11 +3,11 @@ import pandas as pd
 
 
 class _csv_search():
-  def __init__(self, openai_key = "", df = None,path_csv_file=""):
+  def __init__(self, openai_key = "", df = None,file_path=""):
     super().__init__()
     self.openai_key = openai_key
     self.df = df
-    self.path_to_csv = path_csv_file
+    self.path_to_csv = file_path
     self.df_schema = ""
     self._queries=[]
 
@@ -19,7 +19,7 @@ class _csv_search():
     self.df_schema+="})" 
     return self
 
-  def search_data_natural(self, query):
+  def search_data(self, query):
     prompt = (
         "Only return the pandas query. Don't return any comments."
         + self.df_schema + "Task :" + query
@@ -40,12 +40,6 @@ class _csv_search():
       print("Some error has occured!")
       self._queries.append((obj,"error"))
       return (obj,"error")
-
-
-  # CSV data when returned is not as parseable as SQL data is, prefer natural language when using CSV
-  def search_data(self, query):
-    response = self.agent_data({"input":query})
-    return (response["intermediate_steps"][-1],"normal")
   
   def get_queries(self):
     return self._queries

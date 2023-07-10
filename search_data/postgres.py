@@ -4,15 +4,15 @@ import psycopg2
 
 
 class _postgres_search():
-  def __init__(self, openai_key = "", openai = None, PGname = "", PGhost = "", PGuser = "", PGpass = "", PGport = 5432, PGsche = "", cursor = None, conn = None, db = None, agent = None):
+  def __init__(self, openai_key = "", openai = None, file_path = {}, cursor = None, conn = None, db = None, agent = None):
     super().__init__()
     self.openai_key = openai_key
-    self.PGname = PGname
-    self.PGhost = PGhost
-    self.PGuser = PGuser
-    self.PGpass = PGpass
-    self.PGport = PGport
-    self.PGsche = PGsche
+    self.PGname = file_path["pgdata"]
+    self.PGhost = file_path["pghost"]
+    self.PGuser = file_path["pguser"]
+    self.PGpass = file_path["pgpass"]
+    self.PGport = file_path["pgport"]
+    self.PGsche = file_path["pgsche"]
     self.cur = cursor
     self.conn = conn
     self.pg_schema = ""
@@ -37,7 +37,7 @@ class _postgres_search():
 
     return self
 
-  def search_data_natural(self, query):
+  def search_data(self, query):
     prompt = (
         " Only return the postgres query. Don't return any comments."
         + self.pg_schema + "Task :" + query

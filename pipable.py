@@ -60,9 +60,9 @@ class Pipable():
     dataType = config["dataType"]
 
     if dataType == "csv":
-      self.datasearch = _csv_search(openai_key=openai_APIKEY,path_csv_file=config["pathToData"]).initialize(schema = config["schema"])
+      self.datasearch = _csv_search(openai_key=openai_APIKEY,file_path=config["pathToData"]).initialize(schema = config["schema"])
     elif dataType == "postgres":
-      self.datasearch = _postgres_search(openai_key=openai_APIKEY,PGname=config["pathToData"]["pgdata"],PGhost=config["pathToData"]["pghost"],PGuser=config["pathToData"]["pguser"],PGpass=config["pathToData"]["pgpass"],PGport=config["pathToData"]["pgport"], PGsche=config["pathToData"]["pgsche"]).initialize(schema = config["schema"])
+      self.datasearch = _postgres_search(openai_key=openai_APIKEY,file_path=config["pathToData"]).initialize(schema = config["schema"])
     elif dataType == "mysql":
       print("ERROR: mysql data type not yet implemented. Valid data types are csv and postgres.")
     elif dataType == "json":
@@ -75,7 +75,7 @@ class Pipable():
       "ada":self.ada_.ask_ada,
       "semantic_search":self.sem_s.find_similar_score,
       "google_search":self.askgoogle.ask_google,
-      "data_search":self.datasearch.search_data_natural
+      "data_search":self.datasearch.search_data
     }
 
     self.action_desc = config["action_desc"]
