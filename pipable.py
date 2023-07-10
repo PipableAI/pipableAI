@@ -6,7 +6,7 @@ from search_data.postgres import _postgres_search
 from search_data.semantic import _semantic_search
 from search_engine.ada import _ada
 from search_engine.google import _google_search
-
+import pandas as pd
 
 class _proxy_results():
   def __init__(self):
@@ -14,6 +14,7 @@ class _proxy_results():
     self.action_list=[]
     self.output_objects = []
     self.error_outputs = []
+    self.human_prompt = []
     self.current_output_type = -1
 
   def update_ada_thread(self,thread):
@@ -36,6 +37,10 @@ class _proxy_results():
     self.current_output_type = -1
     self.ada_thread = ""
     self.action_list = []
+    self.human_prompt = []
+  
+  def update_human_prompt(self,query):
+    self.human_prompt.append(query)
 
 class _output_obj():
   def __init__(self,output="",model_id=""):
@@ -82,8 +87,15 @@ class Pipable():
 
     self.sem_s.create_key_vectors(list(self.action_desc.values()))
     self.results_proxy = _proxy_results()
+
+    import os
+    folder_path = './parquet_files'
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+    return
   
   def ask(self,query,model=""):
+    self.results_proxy.update_human_prompt(query)
     # model auto selection based on query
     if model == "":
       score = int(jnp.argmax(self.sem_s.find_similar_score(query_list=query)))
@@ -96,14 +108,15 @@ class Pipable():
         google_search_result = self.askgoogle.ask_google(result)
         self.results_proxy.update_ada_thread(result)
         self.results_proxy.update_action([model,"google_search"])
-        self.results_proxy.update_outputobjs(_output_obj(output={"summary":result,"sources":google_search_result},model_id=[model,"google_search"]))
+        self.results_proxy.update_outputobjs(_output_obj(output={"object_type":"string","summary":result,"sources":google_search_result},model_id=[model,"google_search"]))
     
       elif model == "data_search":
-        self.results_proxy.update_action(model)
-        if result[1] == "normal":
-          self.results_proxy.update_outputobjs(_output_obj(output=result[0],model_id=model))
+        if result["exec"] == "successful":
+          self.results_proxy.update_action(model)
+          self.results_proxy.update_outputobjs(_output_obj(output=result,model_id=model))
         else:
-          self.results_proxy.update_error_outputobjs(_output_obj(output=result[0],model_id=model))
+          self.results_proxy.update_error_outputobjs(_output_obj(output=result,model_id=model))
+
       else:
         self.results_proxy.update_action(model)
         self.results_proxy.update_outputobjs(_output_obj(output=result,model_id=model))
@@ -133,4 +146,8 @@ class Pipable():
   
   def reset_chain(self):
     self.results_proxy.reset_outputs()
+  
+  def parse_parquet_to_DataFrame(self,filename):
+    return pd.read_parquet("./parquet_files/{}".format(filename), engine='pyarrow')
+
     

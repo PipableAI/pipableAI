@@ -54,11 +54,12 @@ class _postgres_search():
       self.cur.execute(obj)
       df = pd.DataFrame(self.cur.fetchall())
       self._queries.append((obj,"normal"))
-      return (df,"normal")
+      df.to_parquet('./parquet_files/{}_output.parquet'.format(len(self._queries)-1))
+      return {"object_type":"DataFrame","output_file_name":"{}_output.parquet".format(len(self._queries)-1),"exec":"successful"}
     except Exception as e:
       print("Some error has occured!")
       self._queries.append((obj,"error"))
-      return (obj,"error")
+      return {"object_type":"None","exec":"error"}
   
   def get_queries(self):
     return self._queries
