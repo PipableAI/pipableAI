@@ -54,20 +54,19 @@ class Pipable():
     with open(path) as f:
       config = yaml.safe_load(f)
 
-    openai_APIKEY = config["keys"]["openAI"]
-    google_custom_api_key = config["keys"]["google"]
-    programmable_search_engine_api_key = config["keys"]["search_engine"]
-
-    self.ada_ = _ada(openaiAPIKEY=openai_APIKEY).initialize()
+    self.ada_ = _ada(openaiAPIKEY=config["keys"]["openAI"]).initialize()
     self.sem_s = _semantic_search().initialize()
-    self.askgoogle = _google_search().initialise(google_api_key=google_custom_api_key,search_engine_key=programmable_search_engine_api_key)
+    self.askgoogle = _google_search().initialise(
+      google_api_key=config["keys"]["google"],
+      search_engine_key=config["keys"]["search_engine"]
+    )
 
     dataType = config["dataType"]
 
     if dataType == "csv":
-      self.datasearch = _csv_search(openai_key=openai_APIKEY,file_path=config["pathToData"]).initialize(schema = config["schema"])
+      self.datasearch = _csv_search(openai_key=config["keys"]["openAI"],file_path=config["pathToData"]).initialize()
     elif dataType == "postgres":
-      self.datasearch = _postgres_search(openai_key=openai_APIKEY,file_path=config["pathToData"]).initialize(schema = config["schema"])
+      self.datasearch = _postgres_search(openai_key=config["keys"]["openAI"],file_path=config["pathToData"]).initialize()
     elif dataType == "mysql":
       print("ERROR: mysql data type not yet implemented. Valid data types are csv and postgres.")
     elif dataType == "json":

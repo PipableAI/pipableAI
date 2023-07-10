@@ -18,7 +18,18 @@ class _postgres_search():
     self.pg_schema = ""
     self._queries=[]
 
-  def initialize(self, schema):
+  def autoschema(self):
+    self.cur.execute("SELECT table_name, column_name, data_type FROM information_schema.columns WHERE table_schema = '{}' ORDER BY table_name;".format(self.PGsche))
+    rows = self.cur.fetchall()
+    
+    self.pg_schema = "{}(\n".format(rows[0][0])
+    for i in range(1, len(rows)):
+      if rows[i][0] != rows[i-1][0]:
+        self.pg_schema += ")\n{}(\n".format(rows[i][0])
+      self.pg_schema += "\t{}: {},\n".format(rows[i][1], rows[i][2])
+    self.pg_schema += ")\n"
+
+  def initialize(self):
     self.conn = psycopg2.connect(
       user=self.PGuser,
       password=self.PGpass,
@@ -28,13 +39,7 @@ class _postgres_search():
       options=f"-c search_path={self.PGsche}"
     )
     self.cur = self.conn.cursor()
-
-    for i in schema:
-      self.pg_schema += "{}(\n".format(i)
-      for j in range(len(schema[i]['keys'])):
-        self.pg_schema += "{}:{}, #{}\n".format(schema[i]['keys'][j], schema[i]['dataTypes'][j], schema[i]['descriptors'][j])
-      self.pg_schema += ")\n"
-
+    self.autoschema()
     return self
 
   def search_data(self, query):
@@ -42,6 +47,7 @@ class _postgres_search():
         " Only return the postgres query. Don't return any comments."
         + self.pg_schema + "Task :" + query
     )
+    # print(self.pg_schema)
     openai.api_key =self.openai_key
     completion = openai.ChatCompletion.create(
       temperature=0.8,
@@ -49,11 +55,12 @@ class _postgres_search():
       messages=[{"role": "user","content":prompt }]
     )
     obj = completion.choices[0].message.content
-    print(obj)
     try:
+      print(obj)
       self.cur.execute(obj)
       df = pd.DataFrame(self.cur.fetchall())
       self._queries.append((obj,"normal"))
+      print(df)
       df.to_parquet('./parquet_files/{}_output.parquet'.format(len(self._queries)-1))
       return {"object_type":"DataFrame","output_file_name":"{}_output.parquet".format(len(self._queries)-1),"exec":"successful"}
     except Exception as e:

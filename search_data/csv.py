@@ -11,12 +11,15 @@ class _csv_search():
     self.df_schema = ""
     self._queries=[]
 
-  def initialize(self,schema):
+  def autoschema(self):
+    self.df_schema = "df = pd.DataFrame({\n"
+    for i in range(len(self.df.columns)):
+      self.df_schema += "\t{}: {},\n".format(self.df.columns[i],self.df.dtypes[i])
+    self.df_schema+="})"
+
+  def initialize(self):
     self.df = pd.read_csv(self.path_to_csv)
-    self.df_schema = "df = pd.DataFrame({"
-    for i in range(len(schema["keys"])):
-      self.df_schema += "{}:{} #{}".format(schema["keys"][i],schema["dataTypes"][i],schema["descriptors"][i])
-    self.df_schema+="})" 
+    self.autoschema()
     return self
 
   def search_data(self, query):
@@ -24,6 +27,7 @@ class _csv_search():
         "Only return the pandas query. Don't return any comments."
         + self.df_schema + "Task :" + query
     )
+    print(self.df_schema)
     openai.api_key =self.openai_key
     completion = openai.ChatCompletion.create(
       temperature=0.8,
@@ -32,6 +36,7 @@ class _csv_search():
     )
     obj = completion.choices[0].message.content
     try:
+      print(obj)
       df = self.df
       df = eval(obj)
       self._queries.append((obj,"normal"))
