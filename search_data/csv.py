@@ -11,12 +11,15 @@ class _csv_search():
     self.df_schema = ""
     self._queries=[]
 
-  def initialize(self,schema):
+  def autoschema(self):
+    self.df_schema = "df = pd.DataFrame({\n"
+    for i in range(len(self.df.columns)):
+      self.df_schema += "\t{}: {},\n".format(self.df.columns[i],self.df.dtypes[i])
+    self.df_schema+="})"
+
+  def initialize(self):
     self.df = pd.read_csv(self.path_to_csv)
-    self.df_schema = "df = pd.DataFrame({"
-    for i in range(len(schema["keys"])):
-      self.df_schema += "{}:{} #{}".format(schema["keys"][i],schema["dataTypes"][i],schema["descriptors"][i])
-    self.df_schema+="})" 
+    self.autoschema()
     return self
 
   def search_data(self, query):
