@@ -21,13 +21,16 @@ class _postgres_search():
   def autoschema(self):
     self.cur.execute("SELECT table_name, column_name, data_type FROM information_schema.columns WHERE table_schema = '{}' ORDER BY table_name;".format(self.PGsche))
     rows = self.cur.fetchall()
+
+    schema = "Postgres SQL tables formatted as table_name(column_name:data_type,column_name:data_type,...)\n"
     
-    self.pg_schema = "{}(\n".format(rows[0][0])
+    schema += "{}(".format(rows[0][0])
     for i in range(1, len(rows)):
       if rows[i][0] != rows[i-1][0]:
-        self.pg_schema += ")\n{}(\n".format(rows[i][0])
-      self.pg_schema += "\t{}: {},\n".format(rows[i][1], rows[i][2])
-    self.pg_schema += ")\n"
+        schema += ")\n{}(".format(rows[i][0])
+      schema += "{}:{},".format(rows[i][1], rows[i][2])
+    schema += ")\n"
+    return schema
 
   def initialize(self):
     self.conn = psycopg2.connect(
@@ -39,15 +42,14 @@ class _postgres_search():
       options=f"-c search_path={self.PGsche}"
     )
     self.cur = self.conn.cursor()
-    self.autoschema()
+    self.pg_schema = self.autoschema()
     return self
 
   def search_data(self, query):
     prompt = (
-        " Only return the postgres query. Don't return any comments."
+        "Only return the postgres query. Don't return any comments."
         + self.pg_schema + "Task :" + query
     )
-    # print(self.pg_schema)
     openai.api_key =self.openai_key
     completion = openai.ChatCompletion.create(
       temperature=0.8,
@@ -58,11 +60,13 @@ class _postgres_search():
     try:
       print(obj)
       self.cur.execute(obj)
+      print("Query executed successfully")
       df = pd.DataFrame(self.cur.fetchall())
       self._queries.append((obj,"normal"))
+      df.columns = [desc[0] for desc in self.cur.description]
       print(df)
       df.to_parquet('./parquet_files/{}_output.parquet'.format(len(self._queries)-1))
-      return {"object_type":"DataFrame","output_file_name":"{}_output.parquet".format(len(self._queries)-1),"exec":"successful"}
+      return {"object_type":"DataFrame","output_file_name":"{}_output.parquet".format(len(self._queries)),"exec":"successful"}
     except Exception as e:
       print("Some error has occured!")
       self._queries.append((obj,"error"))

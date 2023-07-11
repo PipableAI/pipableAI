@@ -8,6 +8,7 @@ tabulate
 ipython
 psycopg2-binary
 pyyaml
+pyarrow
 transformers
 einops
 accelerate
