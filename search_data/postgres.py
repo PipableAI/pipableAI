@@ -22,14 +22,21 @@ class _postgres_search():
     self.cur.execute("SELECT table_name, column_name, data_type FROM information_schema.columns WHERE table_schema = '{}' ORDER BY table_name;".format(self.PGsche))
     rows = self.cur.fetchall()
 
-    schema = "Postgres SQL tables formatted as table_name(column_name:data_type,column_name:data_type,...)\n"
+    # schema = "Postgres SQL tables formatted as table_name(column_name:data_type,column_name:data_type,...)\n"
     
-    schema += "{}(".format(rows[0][0])
-    for i in range(1, len(rows)):
-      if rows[i][0] != rows[i-1][0]:
-        schema += ")\n{}(".format(rows[i][0])
-      schema += "{}:{},".format(rows[i][1], rows[i][2])
-    schema += ")\n"
+    # schema += "{}(".format(rows[0][0])
+    # for i in range(1, len(rows)):
+      # if rows[i][0] != rows[i-1][0]:
+        # schema += "\b\b)\n{}(".format(rows[i][0])
+      # schema += "{}: {}, ".format(rows[i][1], rows[i][2])
+    # schema += "\b\b)\n"
+
+    schema = '''
+    Format:
+    [(table_name, column_name, data_type),...]
+    '''
+    schema += str(rows)
+
     return schema
 
   def initialize(self):
