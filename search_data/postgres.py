@@ -18,28 +18,7 @@ class _postgres_search():
     self.pg_schema = ""
     self._queries=[]
 
-  def autoschema(self):
-    self.cur.execute("SELECT table_name, column_name, data_type FROM information_schema.columns WHERE table_schema = '{}' ORDER BY table_name;".format(self.PGsche))
-    rows = self.cur.fetchall()
-
-    # schema = "Postgres SQL tables formatted as table_name(column_name:data_type,column_name:data_type,...)\n"
-    
-    # schema += "{}(".format(rows[0][0])
-    # for i in range(1, len(rows)):
-      # if rows[i][0] != rows[i-1][0]:
-        # schema += "\b\b)\n{}(".format(rows[i][0])
-      # schema += "{}: {}, ".format(rows[i][1], rows[i][2])
-    # schema += "\b\b)\n"
-
-    schema = '''
-    Format:
-    [(table_name, column_name, data_type),...]
-    '''
-    schema += str(rows)
-
-    return schema
-
-  def initialize(self):
+  def initialize(self, schema):
     self.conn = psycopg2.connect(
       user=self.PGuser,
       password=self.PGpass,
@@ -49,13 +28,19 @@ class _postgres_search():
       options=f"-c search_path={self.PGsche}"
     )
     self.cur = self.conn.cursor()
-    self.pg_schema = self.autoschema()
+
+    for i in schema:
+      self.pg_schema += "{}(\n".format(i)
+      for j in range(len(schema[i]['keys'])):
+        self.pg_schema += "{}:{}, #{}\n".format(schema[i]['keys'][j], schema[i]['dataTypes'][j], schema[i]['descriptors'][j])
+      self.pg_schema += ")\n"
+
     return self
 
   def search_data(self, query):
     prompt = (
         "Only return the postgres query. Don't return any comments."
-        + self.pg_schema + "Task :" + query
+        + self.pg_schema + "Task: " + query
     )
     openai.api_key =self.openai_key
     completion = openai.ChatCompletion.create(
