@@ -18,7 +18,16 @@ class _postgres_search():
     self.pg_schema = ""
     self._queries=[]
 
-  def initialize(self, schema):
+  def autoschema(self):
+    self.cur.execute("SELECT table_name, column_name, data_type FROM information_schema.columns WHERE table_schema = '{}' ORDER BY table_name;".format(self.PGsche))
+    rows = self.cur.fetchall()
+    self.pg_schema = '''
+    Format:
+    [(table_name, column_name, data_type),...]
+    '''
+    self.pg_schema += str(rows)
+
+  def initialize(self):
     self.conn = psycopg2.connect(
       user=self.PGuser,
       password=self.PGpass,
@@ -28,13 +37,7 @@ class _postgres_search():
       options=f"-c search_path={self.PGsche}"
     )
     self.cur = self.conn.cursor()
-
-    for i in schema:
-      self.pg_schema += "{}(\n".format(i)
-      for j in range(len(schema[i]['keys'])):
-        self.pg_schema += "{}:{}, #{}\n".format(schema[i]['keys'][j], schema[i]['dataTypes'][j], schema[i]['descriptors'][j])
-      self.pg_schema += ")\n"
-
+    self.autoschema()
     return self
 
   def search_data(self, query):

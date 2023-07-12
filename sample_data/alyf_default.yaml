@@ -1,0 +1,20 @@
+dataType: postgres
+
+pathToData:
+  pguser: 'pipable'
+  pgpass: 'pipable'
+  pghost: '34.82.20.16'
+  pgdata: 'postgres'
+  pgsche: 'alyf'
+  pgport: 5432
+
+keys:
+  openAI: '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'
+  google: 'AIzaSyB88bY1dmo50Pp9dSTzln-JqhsfV_CSW2o'
+  search_engine: '336ee76d0d6af4acd'
+
+action_desc:
+  ada: "Why is a 2% increase in weight a heart failure risk? What are the earliest indicators of a heart failure decompensation ? Where are some educational materials I can share with my patient?What are the barriers to care. Could you summarize some educational materials for me? Can you do daily rounds on my patients for me? Ask LLM. Look for generic info from internet"
+  semantic_search: "Perform vector search.Find similarity.Perform semantic search given a query. Queries can be like find similar items"
+  google_search: "Query google to find answers to certain questions. Can you use google to get me the results, look at google , get search results , do google search."
+  data_search: "What percentage of my patients are on guideline directed medical therapy? What are the barriers to care for this patient ? How can we overcome the barriers to care for this patient?Look in the table. Look in file. Show me all patients at risk.Why is Dan Smith at risk ? Which of my patients have HFI > 35 ? Evaluate the table. Find in table.Look in dataframe . Write code to get patient details. Write queries to. Show me the results of a particular entity. Get me the list of entities where val > X. Analyse the data in a particular time period.Do a sql query. Do a pandas query. Look in database.Which of my *.from data."
