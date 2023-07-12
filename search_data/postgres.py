@@ -46,15 +46,43 @@ class _postgres_search():
     )
     openai.api_key =self.openai_key
     completion = openai.ChatCompletion.create(
-      temperature=0.8,
+      temperature=0.5,
       model="gpt-3.5-turbo",
       messages=[{"role": "user","content":prompt }]
     )
     obj = completion.choices[0].message.content
-
     print(obj)
-    self.cur.execute(obj)
-    df = pd.DataFrame(self.cur.fetchall())
-    df.columns = [desc[0] for desc in self.cur.description]
-    print(df)
-    return (df)
+
+    try:
+      self.cur.execute(obj)
+      df = pd.DataFrame(self.cur.fetchall())
+      df.columns = [desc[0] for desc in self.cur.description]
+      print("Query executed successfully.")
+      # log success
+      current_log = pd.DataFrame({
+        "timestamp": [pd.Timestamp.now()],
+        "query": [query],
+        "datatype": ["postgres"],
+        "database": [self.PGsche],
+        "pipableAI": [""],
+        "openAI": [obj],
+        "success": [True]
+      })
+      temp = pd.read_parquet("logs.parquet", engine = 'pyarrow')
+      pd.concat([temp, current_log], ignore_index = True).to_parquet("logs.parquet", engine = 'pyarrow')
+      return df
+    except:
+      print("Generated query failed. Try regenerating.")
+      # log error
+      current_log = pd.DataFrame({
+        "timestamp": [pd.Timestamp.now()],
+        "query": [query],
+        "datatype": ["postgres"],
+        "database": [self.PGsche],
+        "pipableAI": [""],
+        "openAI": [obj],
+        "success": [False]
+      })
+      temp = pd.read_parquet("logs.parquet", engine = 'pyarrow')
+      pd.concat([temp, current_log], ignore_index = True).to_parquet("logs.parquet", engine = 'pyarrow')
+      return None

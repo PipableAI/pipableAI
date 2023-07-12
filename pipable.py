@@ -1,4 +1,7 @@
+import os
+
 import jax.numpy as jnp
+import pandas as pd
 import yaml
 
 from search_data.csv import _csv_search
@@ -82,6 +85,18 @@ class Pipable():
 
     self.sem_s.create_key_vectors(list(self.action_desc.values()))
     self.results_proxy = _proxy_results()
+
+    if not os.path.exists("logs.parquet"):
+      temp = pd.DataFrame({
+        "timestamp": [],
+        "query": [],
+        "datatype": [],
+        "database": [],
+        "pipableAI": [],
+        "openAI": [],
+        "success": []
+      })
+      temp.to_parquet("logs.parquet", engine = 'pyarrow')
 
     return
   

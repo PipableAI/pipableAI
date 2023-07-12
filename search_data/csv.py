@@ -29,7 +29,7 @@ class _csv_search():
     print(self.df_schema)
     openai.api_key =self.openai_key
     completion = openai.ChatCompletion.create(
-      temperature=0.8,
+      temperature=0.5,
       model="gpt-3.5-turbo",
       messages=[{"role": "user","content":prompt }]
     )
@@ -37,5 +37,34 @@ class _csv_search():
 
     print(obj)
     df = self.df
-    df = eval(obj)
-    return (df)
+    try:
+      df = eval(obj)
+      print("Query executed successfully.")
+      # log success
+      current_log = pd.DataFrame({
+        "timestamp": [pd.Timestamp.now()],
+        "query": [query],
+        "datatype": ["csv"],
+        "database": [self.path_to_csv],
+        "pipableAI": [""],
+        "openAI": [obj],
+        "success": [True]
+      })
+      temp = pd.read_parquet("logs.parquet", engine = 'pyarrow')
+      pd.concat([temp, current_log], ignore_index = True).to_parquet("logs.parquet", engine = 'pyarrow')
+      return df
+    except:
+      print("Generated query failed. Try regenerating.")
+      # log error
+      current_log = pd.DataFrame({
+        "timestamp": [pd.Timestamp.now()],
+        "query": [query],
+        "datatype": ["csv"],
+        "database": [self.path_to_csv],
+        "pipableAI": [""],
+        "openAI": [obj],
+        "success": [False]
+      })
+      temp = pd.read_parquet("logs.parquet", engine = 'pyarrow')
+      pd.concat([temp, current_log], ignore_index = True).to_parquet("logs.parquet", engine = 'pyarrow')
+      return None
