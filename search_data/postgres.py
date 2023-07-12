@@ -16,7 +16,6 @@ class _postgres_search():
     self.cur = cursor
     self.conn = conn
     self.pg_schema = ""
-    self._queries=[]
 
   def autoschema(self):
     self.cur.execute("SELECT table_name, column_name, data_type FROM information_schema.columns WHERE table_schema = '{}' ORDER BY table_name;".format(self.PGsche))
@@ -52,20 +51,10 @@ class _postgres_search():
       messages=[{"role": "user","content":prompt }]
     )
     obj = completion.choices[0].message.content
-    try:
-      print(obj)
-      self.cur.execute(obj)
-      print("Query executed successfully")
-      df = pd.DataFrame(self.cur.fetchall())
-      self._queries.append((obj,"normal"))
-      df.columns = [desc[0] for desc in self.cur.description]
-      print(df)
-      df.to_parquet('./parquet_files/{}_output.parquet'.format(len(self._queries)-1))
-      return {"object_type":"DataFrame","output_file_name":"{}_output.parquet".format(len(self._queries)),"exec":"successful"}
-    except Exception as e:
-      print("Some error has occured!")
-      self._queries.append((obj,"error"))
-      return {"object_type":"None","exec":"error"}
-  
-  def get_queries(self):
-    return self._queries
+
+    print(obj)
+    self.cur.execute(obj)
+    df = pd.DataFrame(self.cur.fetchall())
+    df.columns = [desc[0] for desc in self.cur.description]
+    print(df)
+    return (df)

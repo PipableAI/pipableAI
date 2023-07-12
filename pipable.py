@@ -6,7 +6,7 @@ from search_data.postgres import _postgres_search
 from search_data.semantic import _semantic_search
 from search_engine.ada import _ada
 from search_engine.google import _google_search
-import pandas as pd
+
 
 class _proxy_results():
   def __init__(self):
@@ -26,10 +26,6 @@ class _proxy_results():
   def update_outputobjs(self,outputObj=None):
     self.current_output_type = 0
     self.output_objects.append(outputObj)
-  
-  def update_error_outputobjs(self,outputObj=None):
-    self.current_output_type = 1
-    self.error_outputs.append(outputObj)
   
   def reset_outputs(self):
     self.output_objects = []
@@ -87,10 +83,6 @@ class Pipable():
     self.sem_s.create_key_vectors(list(self.action_desc.values()))
     self.results_proxy = _proxy_results()
 
-    import os
-    folder_path = './parquet_files'
-    if not os.path.exists(folder_path):
-        os.makedirs(folder_path)
     return
   
   def ask(self,query,model=""):
@@ -110,11 +102,8 @@ class Pipable():
         self.results_proxy.update_outputobjs(_output_obj(output={"object_type":"string","summary":result,"sources":google_search_result},model_id=[model,"google_search"]))
     
       elif model == "data_search":
-        if result["exec"] == "successful":
-          self.results_proxy.update_action(model)
-          self.results_proxy.update_outputobjs(_output_obj(output=result,model_id=model))
-        else:
-          self.results_proxy.update_error_outputobjs(_output_obj(output=result,model_id=model))
+        self.results_proxy.update_action(model)
+        self.results_proxy.update_outputobjs(_output_obj(output=result,model_id=model))
 
       else:
         self.results_proxy.update_action(model)
@@ -145,8 +134,4 @@ class Pipable():
   
   def reset_chain(self):
     self.results_proxy.reset_outputs()
-  
-  def parse_parquet_to_DataFrame(self,filename):
-    return pd.read_parquet("./parquet_files/{}".format(filename), engine='pyarrow')
-
     
