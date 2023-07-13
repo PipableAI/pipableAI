@@ -94,7 +94,8 @@ class Pipable():
         "database": [],
         "pipableAI": [],
         "openAI": [],
-        "success": []
+        "success": [],
+        "error": []
       })
       temp.to_parquet("logs.parquet", engine = 'pyarrow')
 

@@ -48,12 +48,13 @@ class _csv_search():
         "database": [self.path_to_csv],
         "pipableAI": [""],
         "openAI": [obj],
-        "success": [True]
+        "success": [True],
+        "error": [""]
       })
       temp = pd.read_parquet("logs.parquet", engine = 'pyarrow')
       pd.concat([temp, current_log], ignore_index = True).to_parquet("logs.parquet", engine = 'pyarrow')
       return df
-    except:
+    except Exception as e:
       print("Generated query failed. Try regenerating.")
       # log error
       current_log = pd.DataFrame({
@@ -63,7 +64,8 @@ class _csv_search():
         "database": [self.path_to_csv],
         "pipableAI": [""],
         "openAI": [obj],
-        "success": [False]
+        "success": [False],
+        "error": [e]
       })
       temp = pd.read_parquet("logs.parquet", engine = 'pyarrow')
       pd.concat([temp, current_log], ignore_index = True).to_parquet("logs.parquet", engine = 'pyarrow')
