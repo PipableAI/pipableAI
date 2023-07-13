@@ -9,6 +9,7 @@ ipython
 psycopg2-binary
 pyyaml
 pyarrow
+PyPDF2
 transformers
 einops
 accelerate

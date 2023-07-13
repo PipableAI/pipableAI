@@ -4,11 +4,12 @@ import jax.numpy as jnp
 import pandas as pd
 import yaml
 
-from search_data.csv import _csv_search
-from search_data.postgres import _postgres_search
-from search_data.semantic import _semantic_search
-from search_engine.ada import _ada
-from search_engine.google import _google_search
+from classes.ada import _ada
+from classes.csv import _csv_search
+from classes.google import _google_search
+from classes.postgres import _postgres_search
+from classes.reader import _data_reader
+from classes.semantic import _semantic_search
 
 
 class _proxy_results():
