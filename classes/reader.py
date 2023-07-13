@@ -4,14 +4,16 @@ import PyPDF2
 
 
 class _data_reader:
-  def __init__(self,human_prompt="None"):
+  # commented unused initializations
+  # uncomment as use case arises
+  def __init__(self):#,human_prompt="None"):
     super().__init__()
-    self.expert_id = "load_data"     #id for the embedder class
-    self.expert_context = ["Load different type of files given path to the file. Ex : Load the file /a/b/c.csv , load the file /a/b/c.parquet , load pickle from .pickle"]
-    self.human_prompt = human_prompt #the human input in natural language that started the action chain
-    self.actions = {"read_pdf":self.read_pdf,"read_parquet":self.read_parquet,"read_csv":self.read_csv}
-    self.action_context = ["Load the pdf file from the path /a/b/c.pdf as frame","Load the paruqet file from the path /a/b/c.parquet as frame","Load the csv file from the path /a/b/c.csv as frame"]
-    self.action_ids = ["read_pdf","read_parquet","read_csv"]
+    #self.expert_id = "load_data"     #id for the embedder class
+    #self.expert_context = ["Load different type of files given path to the file. Ex : Load the file /a/b/c.csv , load the file /a/b/c.parquet , load pickle from .pickle"]
+    #self.human_prompt = human_prompt #the human input in natural language that started the action chain
+    #self.actions = {"read_pdf":self.read_pdf,"read_parquet":self.read_parquet,"read_csv":self.read_csv}
+    #self.action_context = ["Load the pdf file from the path /a/b/c.pdf as frame","Load the paruqet file from the path /a/b/c.parquet as frame","Load the csv file from the path /a/b/c.csv as frame"]
+    #self.action_ids = ["read_pdf","read_parquet","read_csv"]
 
   @staticmethod
   def read_csv(path):

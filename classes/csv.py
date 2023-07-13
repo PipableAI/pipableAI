@@ -3,12 +3,12 @@ import pandas as pd
 
 
 class _csv_search():
-  def __init__(self, openai_key = "", df = None,file_path=""):
+  def __init__(self, openai_key = "", df = None, pathlog = ""):
     super().__init__()
     self.openai_key = openai_key
     self.df = df
-    self.path_to_csv = file_path
     self.df_schema = ""
+    self.pathlog = pathlog
 
   def autoschema(self):
     self.df_schema = "df = pd.DataFrame({\n"
@@ -17,7 +17,6 @@ class _csv_search():
     self.df_schema+="})"
 
   def initialize(self):
-    self.df = pd.read_csv(self.path_to_csv)
     self.autoschema()
     return self
 
@@ -45,7 +44,7 @@ class _csv_search():
         "timestamp": [pd.Timestamp.now()],
         "query": [query],
         "datatype": ["csv"],
-        "database": [self.path_to_csv],
+        "database": [self.pathlog],
         "pipableAI": [""],
         "openAI": [obj],
         "success": [True],

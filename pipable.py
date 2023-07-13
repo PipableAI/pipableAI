@@ -54,6 +54,7 @@ class Pipable():
     with open(path) as f:
       config = yaml.safe_load(f)
 
+    self.reader = _data_reader()
     self.ada_ = _ada(openaiAPIKEY=config["keys"]["openAI"]).initialize()
     self.sem_s = _semantic_search().initialize()
     self.askgoogle = _google_search().initialise(
@@ -64,7 +65,7 @@ class Pipable():
     dataType = config["dataType"]
 
     if dataType == "csv":
-      self.datasearch = _csv_search(openai_key=config["keys"]["openAI"],file_path=config["pathToData"]).initialize()
+      self.datasearch = _csv_search(openai_key=config["keys"]["openAI"],df=self.reader.read_csv(config["pathToData"]), pathlog=config["pathToData"]).initialize()
     elif dataType == "postgres":
       self.datasearch = _postgres_search(openai_key=config["keys"]["openAI"],file_path=config["pathToData"]).initialize()
     elif dataType == "mysql":
