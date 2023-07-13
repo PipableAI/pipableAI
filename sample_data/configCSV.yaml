@@ -11,6 +11,6 @@ action_desc:
   ada: "Ask LLM. What leads to X. What leads to Y. Hi Ada let me know what is X. LLM based query. Open ai tell me why a happens."
   find_similar_score: "Perform semantic search given a query. Queries can be like find similar items"
   google_search: "Query google to find answers to certain questions. Can you use google to get me the results, look at google , get search results , get reference links, do google search."
-  data_search: "Look in the table. Look in csv file. Evaluate the table. Find in table. Resolve dataframe . Write code to extract. Write queries to. Show me the results of a particular entity. Get me the list of entities where val > X. Analyse the data in a particular time period."
+  data_search: "Look in the table. Look in csv file. Look in the parquet file. Look in the PDF file. Look in the postgres SQL database. Evaluate the table. Find in table. Resolve dataframe . Write code to extract. Write queries to. Show me the results of a particular entity. Get me the list of entities where val > X. Analyse the data in a particular time period."
   create_key_vectors: "generate vectors for the keys. Generate vectors for the entities. Generate vectors for the values. Generate vectors for the columns. Generate vectors for the rows. Generate vectors for the table. Generate vec"
   vectorize: "convert inputs to vectors. Convert the data to vectors"
