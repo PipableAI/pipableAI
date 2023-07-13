@@ -77,8 +77,13 @@ class Pipable():
       return None
     
     self.key2method = {
+      "read_csv":self.reader.read_csv,
+      "read_parquet":self.reader.read_parquet,
+      "read_pdf":self.reader.read_pdf,
       "ada":self.ada_.ask_ada,
-      "semantic_search":self.sem_s.find_similar_score,
+      "find_similar_score":self.sem_s.find_similar_score,
+      "create_key_vectors":self.sem_s.create_key_vectors,
+      "vectorize":self.sem_s.vectorize,
       "google_search":self.askgoogle.ask_google,
       "data_search":self.datasearch.search_data
     }
