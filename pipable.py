@@ -56,7 +56,7 @@ class Pipable():
 
     self.reader = _data_reader()
     self.ada_ = _ada(openaiAPIKEY=config["keys"]["openAI"]).initialize()
-    self.sem_s = _semantic_search().initialize()
+    self.sem_s = _semantic_search()
     self.askgoogle = _google_search().initialise(
       google_api_key=config["keys"]["google"],
       search_engine_key=config["keys"]["search_engine"]

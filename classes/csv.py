@@ -60,7 +60,7 @@ class _csv_search():
         "timestamp": [pd.Timestamp.now()],
         "query": [query],
         "datatype": ["csv"],
-        "database": [self.path_to_csv],
+        "database": [self.pathlog],
         "pipableAI": [""],
         "openAI": [obj],
         "success": [False],
