@@ -3,6 +3,7 @@ import os
 import jax.numpy as jnp
 import pandas as pd
 import yaml
+import copy
 
 from classes.ada import _ada
 from classes.csv import _csv_search
@@ -157,4 +158,8 @@ class Pipable():
   
   def reset_chain(self):
     self.results_proxy.reset_outputs()
-    
+  
+  def find_action(self, query):
+    score = int(jnp.argmax(self.sem_s.find_similar_score(query_list=query)))
+    model = list(self.action_desc.keys())[score]
+    return copy.deepcopy(self.key2method[model])

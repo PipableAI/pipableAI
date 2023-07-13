@@ -83,7 +83,7 @@ class _postgres_search():
         "pipableAI": [""],
         "openAI": [obj],
         "success": [False],
-        "error": [e]
+        "error": [str(e)]
       })
       temp = pd.read_parquet("logs.parquet", engine = 'pyarrow')
       pd.concat([temp, current_log], ignore_index = True).to_parquet("logs.parquet", engine = 'pyarrow')
