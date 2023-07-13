@@ -2,13 +2,14 @@ import openai
 import pandas as pd
 
 
-class _csv_search():
-  def __init__(self, openai_key = "", df = None, pathlog = ""):
+class _pandas_search():
+  def __init__(self, openai_key = "", df = None, pathlog = "", datatype = ""):
     super().__init__()
     self.openai_key = openai_key
     self.df = df
     self.df_schema = ""
     self.pathlog = pathlog
+    self.datatype = datatype
 
   def autoschema(self):
     self.df_schema = "df = pd.DataFrame({\n"
@@ -43,7 +44,7 @@ class _csv_search():
       current_log = pd.DataFrame({
         "timestamp": [pd.Timestamp.now()],
         "query": [query],
-        "datatype": ["csv"],
+        "datatype": [self.datatype],
         "database": [self.pathlog],
         "pipableAI": [""],
         "openAI": [obj],
@@ -59,7 +60,7 @@ class _csv_search():
       current_log = pd.DataFrame({
         "timestamp": [pd.Timestamp.now()],
         "query": [query],
-        "datatype": ["csv"],
+        "datatype": [self.datatype],
         "database": [self.pathlog],
         "pipableAI": [""],
         "openAI": [obj],

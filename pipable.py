@@ -6,7 +6,7 @@ import yaml
 import copy
 
 from classes.ada import _ada
-from classes.csv import _csv_search
+from classes.pandas import _pandas_search
 from classes.google import _google_search
 from classes.postgres import _postgres_search
 from classes.reader import _data_reader
@@ -66,21 +66,22 @@ class Pipable():
     dataType = config["dataType"]
 
     if dataType == "csv":
-      self.datasearch = _csv_search(openai_key=config["keys"]["openAI"],df=self.reader.read_csv(config["pathToData"]), pathlog=config["pathToData"]).initialize()
+      self.datasearch = _pandas_search(openai_key=config["keys"]["openAI"],df=self.reader.read_csv(config["pathToData"]), pathlog=config["pathToData"], datatype=dataType).initialize()
+    elif dataType == "parquet":
+      self.datasearch = _pandas_search(openai_key=config["keys"]["openAI"],df=self.reader.read_parquet(config["pathToData"]), pathlog=config["pathToData"], datatype=dataType).initialize()
+    elif dataType == "pdf":
+      self.datasearch = _pandas_search(openai_key=config["keys"]["openAI"],df=self.reader.read_pdf(config["pathToData"]), pathlog=config["pathToData"], datatype=dataType).initialize()
     elif dataType == "postgres":
       self.datasearch = _postgres_search(openai_key=config["keys"]["openAI"],file_path=config["pathToData"]).initialize()
     elif dataType == "mysql":
-      print("ERROR: mysql data type not yet implemented. Valid data types are csv and postgres.")
+      print("ERROR: mysql data type not yet implemented. Valid data types are csv, parquet, PDF, and postgres.")
     elif dataType == "json":
-      print("ERROR: json data type not yet implemented. Valid data types are csv and postgres.")
+      print("ERROR: json data type not yet implemented. Valid data types are csv, parquet, PDF, and postgres.")
     else:
-      print("Error: no valid data type specified. Valid data types are csv and postgres.")
+      print("Error: no valid data type specified. Valid data types are csv, parquet, PDF, and postgres.")
       return None
     
     self.key2method = {
-      "read_csv":self.reader.read_csv,
-      "read_parquet":self.reader.read_parquet,
-      "read_pdf":self.reader.read_pdf,
       "ada":self.ada_.ask_ada,
       "find_similar_score":self.sem_s.find_similar_score,
       "create_key_vectors":self.sem_s.create_key_vectors,
