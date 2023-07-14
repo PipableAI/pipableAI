@@ -24,6 +24,14 @@ class _google_search():
     self.programmable_search_engine_api_key = search_engine_key
     self._google_search = _google_search
     return self
+  
+  def get_latest_google_search_results(self):
+    num_of_results = len(self.past_snippets)
+    if num_of_results == 0:
+      raise Exception("No Results Found")
+    latest_snippets = self.past_snippets[num_of_results-1]
+    latest_urls = self.past_results_urls[num_of_results-1]
+    return list(zip(latest_urls,latest_snippets))
 
   def ask_google(self,query):
     def clean_text(text):
@@ -44,12 +52,7 @@ class _google_search():
       ite+=1
       output.append({"url":item['link'],"headline":cleantext})
     self.past_results.append(output)
-    return output
+    return (0, output)
 
-  def get_latest_google_search_results(self):
-    num_of_results = len(self.past_snippets)
-    if num_of_results == 0:
-      raise Exception("No Results Found")
-    latest_snippets = self.past_snippets[num_of_results-1]
-    latest_urls = self.past_results_urls[num_of_results-1]
-    return list(zip(latest_urls,latest_snippets))
+# returning 0 means success, 1 means error
+# code to handle error is not written yet

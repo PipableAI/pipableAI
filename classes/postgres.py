@@ -71,7 +71,7 @@ class _postgres_search():
       })
       temp = pd.read_parquet("logs.parquet", engine = 'pyarrow')
       pd.concat([temp, current_log], ignore_index = True).to_parquet("logs.parquet", engine = 'pyarrow')
-      return df
+      return (0, df)
     except Exception as e:
       print("Generated query failed. Try regenerating.")
       # log error
@@ -87,4 +87,4 @@ class _postgres_search():
       })
       temp = pd.read_parquet("logs.parquet", engine = 'pyarrow')
       pd.concat([temp, current_log], ignore_index = True).to_parquet("logs.parquet", engine = 'pyarrow')
-      return str(e)
+      return (1, str(e))

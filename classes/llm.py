@@ -9,6 +9,9 @@ class _llm():
     self.llm_thread=llm_thread
     self.openai_api_key = openaiAPIKEY
 
+  def reset_thread(self):
+    self.llm_thread = ""
+
   def ask_llm(self,query):
     llm_thread = self.llm_thread
     temp_query = copy.deepcopy(query)
@@ -31,7 +34,7 @@ class _llm():
       self.llm_thread += ". "+text
     else:
       self.llm_thread = text
-    return text
-
-  def reset_thread(self):
-    self.llm_thread = ""
+    return (0, text)
+  
+# returning 0 means success, 1 means error
+# code to handle error is not written yet

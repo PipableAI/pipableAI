@@ -18,22 +18,24 @@ class _data_reader:
   @staticmethod
   def read_csv(path):
     try:
-      return pd.read_csv(filepath_or_buffer=path,quoting = csv.QUOTE_MINIMAL,sep=None, delimiter=None, header='infer', index_col=None, usecols=None, dtype=None, engine="python", converters=None, true_values=[], false_values=[], skiprows=0,nrows=None, na_filter=True, verbose=False, skip_blank_lines=True,compression='infer', lineterminator=None, quotechar='"', doublequote=True, escapechar=None, encoding="utf-8", encoding_errors='ignore', on_bad_lines='skip', delim_whitespace=False)
+      return (0, pd.read_csv(filepath_or_buffer=path,quoting = csv.QUOTE_MINIMAL,sep=None, delimiter=None, header='infer', index_col=None, usecols=None, dtype=None, engine="python", converters=None, true_values=[], false_values=[], skiprows=0,nrows=None, na_filter=True, verbose=False, skip_blank_lines=True,compression='infer', lineterminator=None, quotechar='"', doublequote=True, escapechar=None, encoding="utf-8", encoding_errors='ignore', on_bad_lines='skip', delim_whitespace=False))
     except Exception as e:
-      return e
+      return (1, str(e))
 
   @staticmethod
   def read_parquet(path):
     try:
-      return pd.read_parquet(path=path, engine='auto', columns=None)
+      return (0, pd.read_parquet(path=path, engine='auto', columns=None))
     except Exception as e:
-      return e
+      return (1, str(e))
 
   @staticmethod
   def read_pdf(path):
     try:
       reader = PyPDF2.PdfReader(stream = path, strict= False)
       data = [reader.pages[i].extract_text() for i in range(len(reader.pages))]
-      return pd.DataFrame({"content":data})
+      return (0, pd.DataFrame({"content":data}))
     except Exception as e:
-      return e
+      return (1, str(e))
+
+# returning 0 means success, 1 means error

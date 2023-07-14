@@ -32,6 +32,10 @@ class _proxy_results():
     self.current_output_type = 0
     self.output_objects.append(outputObj)
   
+  def update_errorobjs(self,errorObj=None):
+    self.current_output_type = 1
+    self.error_outputs.append(errorObj)
+  
   def reset_outputs(self):
     self.output_objects = []
     self.error_outputs = []
@@ -65,8 +69,24 @@ class Pipable():
 
     dataType = config["dataType"]
 
-    if dataType == "csv":
-      self.datasearch = _pandas_search(openai_key=config["keys"]["openAI"],df=self.reader.read_csv(config["pathToData"]), pathlog=config["pathToData"], datatype=dataType).initialize()
+    if dataType == "csv" or dataType == "parquet" or dataType == "pdf":
+      output = None
+      if dataType == "csv":
+        flag, output = self.reader.read_csv(config["pathToData"])
+        if flag == 1:
+          print(output)
+          return
+      elif dataType == "parquet":
+        flag, output = self.reader.read_parquet(config["pathToData"])
+        if flag == 1:
+          print(output)
+          return
+      elif dataType == "pdf":
+        flag, output = self.reader.read_pdf(config["pathToData"])
+        if flag == 1:
+          print(output)
+          return
+      self.datasearch = _pandas_search(openai_key=config["keys"]["openAI"],df=output, pathlog=config["pathToData"], datatype=dataType).initialize()
     elif dataType == "parquet":
       self.datasearch = _pandas_search(openai_key=config["keys"]["openAI"],df=self.reader.read_parquet(config["pathToData"]), pathlog=config["pathToData"], datatype=dataType).initialize()
     elif dataType == "pdf":
@@ -125,24 +145,22 @@ class Pipable():
       model = list(self.action_desc.keys())[score]
     # specified or auto selected model is valid
     if model in self.action_desc:
-      result = self.key2method[model](query)
+      flag, result = self.key2method[model](query)
       
       if model == "llm_google":
-        google_search_result = self.askgoogle.ask_google(result)
+        flag, googres = self.askgoogle.ask_google(result)
+        # failure to search not implemented yet
+        result += str(googres)
         self.results_proxy.update_llm_thread(result)
-        self.results_proxy.update_action([model,"google_search"])
-        self.results_proxy.update_outputobjs(_output_obj(output={"object_type":"string","summary":result,"sources":google_search_result},model_id=[model,"google_search"]))
-    
-      elif model == "data_search":
-        self.results_proxy.update_action(model)
-        self.results_proxy.update_outputobjs(_output_obj(output=result,model_id=model))
 
+      self.results_proxy.update_action(model)
+      if flag == 1:
+        self.results_proxy.update_errorobjs(_output_obj(output=result,model_id=model))
       else:
-        self.results_proxy.update_action(model)
         self.results_proxy.update_outputobjs(_output_obj(output=result,model_id=model))
     # specified model is invalid
     else:
-      print(model, "- No such model found. Ensure that correct model_id is entered. Refer to .get_help() for model ids.")
+      print(model, ": No such model found. Ensure that correct model_id is entered. Refer to .get_help() for model ids.")
     return
 
   def get_help(self):
@@ -162,7 +180,10 @@ class Pipable():
         return self.results_proxy.error_outputs[-1]._output
 
   def get_all_outputs(self):
-    return {"outputs":[x._output for x in self.results_proxy.output_objects],"errors":[x._output for x in self.results_proxy.error_outputs]}
+    return {
+      "outputs":[x._output for x in self.results_proxy.output_objects],
+      "errors":[x._output for x in self.results_proxy.error_outputs]
+    }
   
   def reset_chain(self):
     self.results_proxy.reset_outputs()
@@ -171,3 +192,5 @@ class Pipable():
     score = int(jnp.argmax(self.internal_sem_s.find_similar_score(query_list=query)))
     model = list(self.action_desc.keys())[score]
     return copy.deepcopy(self.key2method[model])
+
+# returning 0 means success, 1 means error
