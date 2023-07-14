@@ -1,6 +1,5 @@
 import re
 from html import unescape
-from pprint import pprint
 
 from googleapiclient.discovery import build
 from IPython.display import HTML, display
@@ -33,26 +32,18 @@ class _google_search():
       clean_text = re.sub('[^a-zA-Z0-9\s]', '', clean_text)
       clean_text = re.sub('\s+', ' ', clean_text).strip()
       return clean_text
-    pprint(display(HTML('<span style="color:#DB4437">Google Search Loaded: What is your query ?</span>')))
-    self.past_query.append(query)
-    pprint(display(HTML('<span style="color:#4285F4">Google search: fetching results : </span>')))
+    print("Google search: {}".format(query))
     gs = self._google_search
-    print("Query :- {}".format(query))
     response = gs.cse().list(q=query, cx=self.programmable_search_engine_api_key).execute()
     ite=1
-    #print(response)
     output = []
     for item in response['items']:
       cleantext = clean_text(item['snippet'])
-      pprint("Link {}:- {}".format(ite,item['link']))
-      pprint("Result {}:- {}".format(ite,cleantext))
+      print("\nLink {}: {}".format(ite,item['link']))
+      print("Result {}: {}".format(ite,cleantext))
       ite+=1
       output.append({"url":item['link'],"headline":cleantext})
-      pprint(display(HTML('<span style="color:#DB4437">Google search: Next result : </span>')))
     self.past_results.append(output)
-    pprint(display(HTML('<span style="color:#DB4437">Ada: Is there anything else I can do ? You can check my action catalogue to know all my skills and you can use .correct_output, .output , .querry , .input , .actions, .ada_thread methods to check our peer development thread. </span>')))
-    pprint(display(HTML('<span style="color:#0F9D58">Ada: You can also ask google or open ai using .ask_google() or .ask_open_ai() methods </span>')))
-    # return self
     return output
 
   def get_latest_google_search_results(self):

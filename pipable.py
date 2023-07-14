@@ -5,7 +5,7 @@ import pandas as pd
 import yaml
 import copy
 
-from classes.ada import _ada
+from classes.llm import _llm
 from classes.pandas import _pandas_search
 from classes.google import _google_search
 from classes.postgres import _postgres_search
@@ -15,15 +15,15 @@ from classes.semantic import _semantic_search
 
 class _proxy_results():
   def __init__(self):
-    self.ada_thread = ""
+    self.llm_thread = ""
     self.action_list=[]
     self.output_objects = []
     self.error_outputs = []
     self.human_prompt = []
     self.current_output_type = -1
 
-  def update_ada_thread(self,thread):
-    self.ada_thread = thread
+  def update_llm_thread(self,thread):
+    self.llm_thread = thread
 
   def update_action(self,model_id):
     self.action_list.append(model_id)
@@ -36,7 +36,7 @@ class _proxy_results():
     self.output_objects = []
     self.error_outputs = []
     self.current_output_type = -1
-    self.ada_thread = ""
+    self.llm_thread = ""
     self.action_list = []
     self.human_prompt = []
   
@@ -56,7 +56,7 @@ class Pipable():
       config = yaml.safe_load(f)
 
     self.reader = _data_reader()
-    self.ada_ = _ada(openaiAPIKEY=config["keys"]["openAI"]).initialize()
+    self.llm_ = _llm(openaiAPIKEY=config["keys"]["openAI"])
     self.sem_s = _semantic_search()
     self.askgoogle = _google_search().initialise(
       google_api_key=config["keys"]["google"],
@@ -82,7 +82,8 @@ class Pipable():
       return None
         
     self.key2method = {
-      "ada":self.ada_.ask_ada,
+      "llm":self.llm_.ask_llm,
+      "llm_google":self.llm_.ask_llm,
       "find_similar_score":copy.deepcopy(self.sem_s.find_similar_score),
       "create_key_vectors":self.sem_s.create_key_vectors,
       "vectorize":self.sem_s.vectorize,
@@ -124,9 +125,9 @@ class Pipable():
     if model in self.action_desc:
       result = self.key2method[model](query)
       
-      if model == "ada":
+      if model == "llm_google":
         google_search_result = self.askgoogle.ask_google(result)
-        self.results_proxy.update_ada_thread(result)
+        self.results_proxy.update_llm_thread(result)
         self.results_proxy.update_action([model,"google_search"])
         self.results_proxy.update_outputobjs(_output_obj(output={"object_type":"string","summary":result,"sources":google_search_result},model_id=[model,"google_search"]))
     
