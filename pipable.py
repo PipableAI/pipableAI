@@ -83,7 +83,7 @@ class Pipable():
         
     self.key2method = {
       "ada":self.ada_.ask_ada,
-      "find_similar_score":self.sem_s.find_similar_score,
+      "find_similar_score":copy.deepcopy(self.sem_s.find_similar_score),
       "create_key_vectors":self.sem_s.create_key_vectors,
       "vectorize":self.sem_s.vectorize,
       "google_search":self.askgoogle.ask_google,
