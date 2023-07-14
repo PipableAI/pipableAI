@@ -86,13 +86,9 @@ class Pipable():
         if flag == 1:
           print(output)
           return
-      self.datasearch = _pandas_search(openai_key=config["keys"]["openAI"],df=output, pathlog=config["pathToData"], datatype=dataType).initialize()
-    elif dataType == "parquet":
-      self.datasearch = _pandas_search(openai_key=config["keys"]["openAI"],df=self.reader.read_parquet(config["pathToData"]), pathlog=config["pathToData"], datatype=dataType).initialize()
-    elif dataType == "pdf":
-      self.datasearch = _pandas_search(openai_key=config["keys"]["openAI"],df=self.reader.read_pdf(config["pathToData"]), pathlog=config["pathToData"], datatype=dataType).initialize()
+      self.datasearch = _pandas_search(openai_key=config["keys"]["openAI"],df=output, pathlog=config["pathToData"], datatype=dataType, context=config["context"]).initialize()
     elif dataType == "postgres":
-      self.datasearch = _postgres_search(openai_key=config["keys"]["openAI"],file_path=config["pathToData"]).initialize()
+      self.datasearch = _postgres_search(openai_key=config["keys"]["openAI"],file_path=config["pathToData"], context=config["context"]).initialize()
     elif dataType == "mysql":
       print("ERROR: mysql data type not yet implemented. Valid data types are csv, parquet, PDF, and postgres.")
     elif dataType == "json":
