@@ -1,13 +1,13 @@
+import copy
 import os
 
 import jax.numpy as jnp
 import pandas as pd
 import yaml
-import copy
 
+from classes.google import _google_search
 from classes.llm import _llm
 from classes.pandas import _pandas_search
-from classes.google import _google_search
 from classes.postgres import _postgres_search
 from classes.reader import _data_reader
 from classes.semantic import _semantic_search
@@ -84,7 +84,7 @@ class Pipable():
     self.key2method = {
       "llm":self.llm_.ask_llm,
       "llm_google":self.llm_.ask_llm,
-      "find_similar_score":copy.deepcopy(self.sem_s.find_similar_score),
+      "find_similar_score":self.sem_s.find_similar_score,
       "create_key_vectors":self.sem_s.create_key_vectors,
       "vectorize":self.sem_s.vectorize,
       "google_search":self.askgoogle.ask_google,
@@ -97,7 +97,9 @@ class Pipable():
 
     self.action_desc = config["action_desc"]
 
-    self.sem_s.create_key_vectors(list(self.action_desc.values()))
+    #WARNING: use internal_sem_s for all semantic search functions related to action_desc
+    self.internal_sem_s = copy.deepcopy(self.sem_s)
+    self.internal_sem_s.create_key_vectors(list(self.action_desc.values()))
     self.results_proxy = _proxy_results()
 
     if not os.path.exists("logs.parquet"):
@@ -119,7 +121,7 @@ class Pipable():
     self.results_proxy.update_human_prompt(query)
     # model auto selection based on query
     if model == "":
-      score = int(jnp.argmax(self.sem_s.find_similar_score(query_list=query)))
+      score = int(jnp.argmax(self.internal_sem_s.find_similar_score(query_list=query)))
       model = list(self.action_desc.keys())[score]
     # specified or auto selected model is valid
     if model in self.action_desc:
@@ -166,6 +168,6 @@ class Pipable():
     self.results_proxy.reset_outputs()
   
   def find_action(self, query):
-    score = int(jnp.argmax(self.sem_s.find_similar_score(query_list=query)))
+    score = int(jnp.argmax(self.internal_sem_s.find_similar_score(query_list=query)))
     model = list(self.action_desc.keys())[score]
     return copy.deepcopy(self.key2method[model])
