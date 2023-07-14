@@ -6,7 +6,7 @@ from sentence_transformers import SentenceTransformer
 class _semantic_search():
   def __init__(self,embedder = None):
     super().__init__()
-    self.embedder = SentenceTransformer("sentence-transformers/all-mpnet-base-v2") if embedder == None else embedder
+    self.embedder = SentenceTransformer("multi-qa-mpnet-base-dot-v1") if embedder == None else embedder
 
   def vectorize(self,data_list):
     return self.embedder.encode(data_list)
