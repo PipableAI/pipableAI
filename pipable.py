@@ -120,7 +120,7 @@ class Pipable():
         datatype = "ERROR"
 
       self.all_outputs.append({
-        "isError": False,
+        "isError": bool(flag),
         "output": result,
         "model_id": model,
         "dtype": datatype
