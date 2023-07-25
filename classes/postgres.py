@@ -4,7 +4,7 @@ import psycopg2
 
 
 class _postgres_search():
-  def __init__(self, openai_key = "", openai = None, file_path = {}, cursor = None, conn = None, db = None, agent = None, context = ""):
+  def __init__(self, openai_key = "", openai = None, file_path = {}, cursor = None, conn = None, db = None, agent = None):
     super().__init__()
     self.openai_key = openai_key
     self.PGname = file_path["pgdata"]
@@ -16,7 +16,6 @@ class _postgres_search():
     self.cur = cursor
     self.conn = conn
     self.pg_schema = ""
-    self.context = context
 
   def autoschema(self):
     self.cur.execute("SELECT table_name, column_name, data_type FROM information_schema.columns WHERE table_schema = '{}' ORDER BY table_name;".format(self.PGsche))
@@ -40,11 +39,11 @@ class _postgres_search():
     self.autoschema()
     return self
 
-  def search_data(self, query):
+  def search_data(self, query, context = ""):
     prompt = (
         "Only return the postgres query. Don't return any comments."
         + self.pg_schema
-        + self.context
+        + context
         + "Task: " + query
     )
     openai.api_key =self.openai_key

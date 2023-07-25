@@ -27,8 +27,17 @@ class Pipable():
       search_engine_key=config["keys"]["search_engine"]
     )
 
-    dataType = config["dataType"]
+    self.action_desc = config["action_desc"]
+    #WARNING: use action_sem_search for all semantic search functions related to action_desc ONLY
+    self.action_sem_search = copy.deepcopy(self.sem_s)
+    self.action_sem_search.create_key_vectors(list(self.action_desc.values()))
 
+    self.context = config["context"].splitlines()
+    #WARNING: use context_sem_search for all semantic search functions related to context ONLY
+    self.context_sem_search = copy.deepcopy(self.sem_s)
+    self.context_sem_search.create_key_vectors(self.context)
+
+    dataType = config["dataType"]
     if dataType == "csv" or dataType == "parquet" or dataType == "pdf":
       output = None
       if dataType == "csv":
@@ -46,16 +55,12 @@ class Pipable():
         if flag == 1:
           print(output)
           return
-      self.datasearch = _pandas_search(openai_key=config["keys"]["openAI"],df=output, pathlog=config["pathToData"], datatype=dataType, context=config["context"]).initialize()
+      self.datasearch = _pandas_search(openai_key=config["keys"]["openAI"],df=output, pathlog=config["pathToData"], datatype=dataType).initialize()
     elif dataType == "postgres":
-      self.datasearch = _postgres_search(openai_key=config["keys"]["openAI"],file_path=config["pathToData"], context=config["context"]).initialize()
-    elif dataType == "mysql":
-      print("ERROR: mysql data type not yet implemented. Valid data types are csv, parquet, PDF, and postgres.")
-    elif dataType == "json":
-      print("ERROR: json data type not yet implemented. Valid data types are csv, parquet, PDF, and postgres.")
+      self.datasearch = _postgres_search(openai_key=config["keys"]["openAI"],file_path=config["pathToData"]).initialize()
     else:
       print("ERROR: no valid data type specified. Valid data types are csv, parquet, PDF, and postgres.")
-      return None
+      return
         
     self.key2method = {
       "llm":self.llm_.ask_llm,
@@ -70,12 +75,6 @@ class Pipable():
       "read_pdf":self.reader.read_pdf
     }
     #WARNING: exposed read functions do not override all configurations related to initialization
-
-    self.action_desc = config["action_desc"]
-
-    #WARNING: use internal_sem_s for all semantic search functions related to action_desc
-    self.internal_sem_s = copy.deepcopy(self.sem_s)
-    self.internal_sem_s.create_key_vectors(list(self.action_desc.values()))
 
     if not os.path.exists("logs.parquet"):
       temp = pd.DataFrame({
@@ -97,12 +96,16 @@ class Pipable():
   def ask(self,query,model=""):
     # model auto selection based on query
     if model == "":
-      score = int(jnp.argmax(self.internal_sem_s.find_similar_score(query_list=query)))
+      score = int(jnp.argmax(self.action_sem_search.find_similar_score(query_list=query)))
       model = list(self.action_desc.keys())[score]
     # specified or auto selected model is valid
     if model in self.action_desc:
-      flag, result = self.key2method[model](query)
-      
+      if model == "data_search":
+        contextscore = int(jnp.argmax(self.context_sem_search.find_similar_score(query_list=query)))
+        smartcontext = self.context[contextscore]
+        flag, result = self.key2method[model](query, smartcontext)
+      else:
+        flag, result = self.key2method[model](query)
       if model == "llm_google":
         flag, googres = self.askgoogle.ask_google(result)
         # failure to search not implemented yet
@@ -134,7 +137,7 @@ class Pipable():
       print(i,"\t\t",self.action_desc[i])
   
   def find_action(self, query):
-    score = int(jnp.argmax(self.internal_sem_s.find_similar_score(query_list=query)))
+    score = int(jnp.argmax(self.action_sem_search.find_similar_score(query_list=query)))
     model = list(self.action_desc.keys())[score]
     return copy.deepcopy(self.key2method[model])
 

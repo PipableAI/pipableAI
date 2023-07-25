@@ -3,14 +3,13 @@ import pandas as pd
 
 
 class _pandas_search():
-  def __init__(self, openai_key = "", df = None, pathlog = "", datatype = "", context = ""):
+  def __init__(self, openai_key = "", df = None, pathlog = "", datatype = ""):
     super().__init__()
     self.openai_key = openai_key
     self.df = df
     self.df_schema = ""
     self.pathlog = pathlog
     self.datatype = datatype
-    self.context = context
 
   def autoschema(self):
     self.df_schema = "df = pd.DataFrame({\n"
@@ -22,11 +21,11 @@ class _pandas_search():
     self.autoschema()
     return self
 
-  def search_data(self, query):
+  def search_data(self, query, context = ""):
     prompt = (
         "Only return the pandas query. Don't return any comments."
         + self.df_schema
-        + self.context
+        + context
         + "Task :" + query
     )
     print(self.df_schema)
