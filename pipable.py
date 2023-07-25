@@ -89,7 +89,7 @@ class Pipable():
       })
       temp.to_parquet("logs.parquet", engine = 'pyarrow')
     
-    self.all_outputs = []
+    self._all_outputs = []
 
     return
   
@@ -119,7 +119,7 @@ class Pipable():
       if flag == 1:
         datatype = "ERROR"
 
-      self.all_outputs.append({
+      self._all_outputs.append({
         "isError": bool(flag),
         "output": result,
         "model_id": model,
@@ -140,5 +140,11 @@ class Pipable():
     score = int(jnp.argmax(self.action_sem_search.find_similar_score(query_list=query)))
     model = list(self.action_desc.keys())[score]
     return copy.deepcopy(self.key2method[model])
+
+  def get_outputs(self, howmany = 0):
+    if howmany == 0:
+      return self._all_outputs
+    else:
+      return self._all_outputs[-howmany:]
 
 # returning 0 means success, 1 means error
