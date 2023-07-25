@@ -32,10 +32,10 @@ class Pipable():
     self.action_sem_search = copy.deepcopy(self.sem_s)
     self.action_sem_search.create_key_vectors(list(self.action_desc.values()))
 
-    self.context = config["context"].splitlines()
+    self.context = config["context"]
     #WARNING: use context_sem_search for all semantic search functions related to context ONLY
     self.context_sem_search = copy.deepcopy(self.sem_s)
-    self.context_sem_search.create_key_vectors(self.context)
+    self.context_sem_search.create_key_vectors(list(self.context.values()))
 
     dataType = config["dataType"]
     if dataType == "csv" or dataType == "parquet" or dataType == "pdf":
@@ -102,7 +102,7 @@ class Pipable():
     if model in self.action_desc:
       if model == "data_search":
         contextscore = int(jnp.argmax(self.context_sem_search.find_similar_score(query_list=query)))
-        smartcontext = self.context[contextscore]
+        smartcontext = list(self.context.values())[contextscore]
         flag, result = self.key2method[model](query, smartcontext)
       else:
         flag, result = self.key2method[model](query)
