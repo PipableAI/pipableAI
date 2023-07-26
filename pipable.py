@@ -109,7 +109,8 @@ class Pipable():
       if model == "llm_google":
         flag, googres = self.askgoogle.ask_google(result)
         # failure to search not implemented yet
-        result += str(googres)
+        result = [result]
+        result.extend(googres)
       
       datatype = ""
       try:
