@@ -6,7 +6,7 @@ class _llm():
     super().__init__()
     self.llm_thread = llm_thread
     self.openai_api_key = openaiAPIKEY
-    self.MAXLEN = 16384
+    self.MAXLEN = 12000
 
   def reset_thread(self):
     self.llm_thread = []
@@ -16,9 +16,9 @@ class _llm():
     if querylen > self.MAXLEN:
       return (1, "Query is too long. Please shorten it to less than 16384 tokens.")
     else:
-      prequery = ' '.join(self.llm_thread)
-      while querylen + len(prequery.split()) > self.MAXLEN:
+      while querylen + len((' '.join(self.llm_thread).split())) > self.MAXLEN:
         self.llm_thread.pop(0)
+      prequery = ' '.join(self.llm_thread)
       query = prequery + '\n' + query
       return (0, query)
 
