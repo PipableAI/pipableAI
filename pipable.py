@@ -75,7 +75,6 @@ class Pipable():
       "read_pdf":self.reader.read_pdf
     }
     #WARNING: exposed read functions do not override all configurations related to initialization
-
     if not os.path.exists("logs.parquet"):
       temp = pd.DataFrame({
         "timestamp": [],
@@ -88,10 +87,7 @@ class Pipable():
         "error": []
       })
       temp.to_parquet("logs.parquet", engine = 'pyarrow')
-    
     self._all_outputs = []
-
-    return
   
   def ask(self,query,model=""):
     # model auto selection based on query
@@ -128,7 +124,6 @@ class Pipable():
     # specified model is invalid
     else:
       print(model, ": No such model found. Ensure that correct model_id is entered. Refer to .get_help() for model ids.")
-    return
 
   def get_help(self):
     print("You can ask any question using the ask function. It takes two Parameters, query and model. Different models and their query are mentioned below:")
@@ -146,5 +141,6 @@ class Pipable():
       return self._all_outputs
     else:
       return self._all_outputs[-howmany:]
-
-# returning 0 means success, 1 means error
+    
+  def reset_llm(self):
+    self.llm_.reset_thread()

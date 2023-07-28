@@ -1,40 +1,45 @@
-import copy
-
-from IPython.display import HTML, display
+import openai
 
 
 class _llm():
-  def __init__(self,llm_thread="",openaiAPIKEY=""):
+  def __init__(self,llm_thread=[],openaiAPIKEY=""):
     super().__init__()
-    self.llm_thread=llm_thread
+    self.llm_thread = llm_thread
     self.openai_api_key = openaiAPIKEY
+    self.MAXLEN = 16384
 
   def reset_thread(self):
-    self.llm_thread = ""
+    self.llm_thread = []
+
+  def _auto_minimal_query(self, query):
+    querylen = len(query.split())
+    if querylen > self.MAXLEN:
+      return (1, "Query is too long. Please shorten it to less than 16384 tokens.")
+    else:
+      prequery = ' '.join(self.llm_thread)
+      while querylen + len(prequery.split()) > self.MAXLEN:
+        self.llm_thread.pop(0)
+      query = prequery + '\n' + query
+      return (0, query)
 
   def ask_llm(self,query):
-    llm_thread = self.llm_thread
-    temp_query = copy.deepcopy(query)
-    if llm_thread == "":
-      query=query
-    else:
-      query = llm_thread+". "+query
-    import os
+    flag, query = self._auto_minimal_query(query)
+    if flag == 1:
+      print(query)
+      return (1, query)
 
-    import openai
-    openai.api_key =self.openai_api_key
-    completion = openai.ChatCompletion.create(model="gpt-3.5-turbo",
+    openai.api_key = self.openai_api_key
+    completion = openai.ChatCompletion.create(model="gpt-3.5-turbo-16k",
       messages=[
         {"role": "user","content":query }
       ]
     )
-    text = completion.choices[0].message.content
-    print(f"LLM: {text}")
-    if llm_thread!="":
-      self.llm_thread += ". "+text
-    else:
-      self.llm_thread = text
-    return (0, text)
+    result = completion.choices[0].message.content
+    print(f"LLM: {result}")
+
+    self.llm_thread.append(result)
+
+    return (0, result)
   
 # returning 0 means success, 1 means error
 # code to handle error is not written yet
