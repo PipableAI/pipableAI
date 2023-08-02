@@ -14,12 +14,12 @@ keys:
   search_engine: '336ee76d0d6af4acd'
 
 action_desc:
-  llm: "ask LLm: for answers on health related questions or table description.Ask LLM."
-  llm_google: "search+LLM : ask LLM for answer on health related questions and get reference link from internet or google"
+  llm: "ask LLM - for answers on health related questions or table description.Ask LLM."
+  llm_google: "google search LLM - ask LLM for answer on health related questions and get reference link from internet or google"
   find_similar_score: "find cosine similarity or similarity score between query and key vectors"
   create_key_vectors: "update the semantic search module with text list"
   vectorize: "generate vectors or embeddings for a list of text documents or sentences"
-  google_search: "query google to find answers to certain questions"
+  google_search: "query google search to find answers to certain questions"
   data_search: "search the table or or database for information on patients"
   read_csv: "read csv file. read csv."
   read_parquet: "read parquet file. read parquet."
