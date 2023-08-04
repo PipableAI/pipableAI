@@ -24,9 +24,7 @@ from pipable import Pipable
 
 a = Pipable("sample_data/configCSV.yaml")
 
-a.ask("Get all patient ids and vital in the form of table that have vitals as Heart Rate and value between 100 to 150 between march to april 2023")
-
-outputs = a.get_all_outputs()
+output = a.ask("Get all patient ids and vital in the form of table that have vitals as Heart Rate and value between 100 to 150 between march to april 2023")
 
 ```
 

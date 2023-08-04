@@ -91,7 +91,6 @@ class Pipable():
         "error": []
       })
       temp.to_parquet("logs.parquet", engine = 'pyarrow')
-    self._all_outputs = []
     PIPABLE_LOG.info(f"Pipable class instantiated from {path}")
   
   def ask(self,query,model=""):
@@ -109,11 +108,7 @@ class Pipable():
         flag, result = self.key2method[model](query, smartcontext)
       else:
         flag, result = self.key2method[model](query)
-      if model == "llm_google":
-        flag, googres = self.askgoogle.ask_google(result)
-        # failure to search not implemented yet
-        result = {"llm":result, "google_search":googres}
-      
+
       datatype = ""
       try:
         datatype = result.dtype
@@ -122,7 +117,24 @@ class Pipable():
       if flag == 1:
         datatype = "ERROR"
 
-      self._all_outputs.append({
+      if model == "llm_google":
+        googflag, googres = self.askgoogle.ask_google(result)
+        googdtype = type(googres)
+        if googflag == 1:
+          googdtype = "ERROR"
+
+        return ({
+          "isError": bool(flag),
+          "output": result,
+          "model_id": "llm",
+          "dtype": datatype
+        }, {
+          "isError": bool(googflag),
+          "output": googres,
+          "model_id": "google_search",
+          "dtype": googdtype
+        })
+      return ({
         "isError": bool(flag),
         "output": result,
         "model_id": model,
@@ -131,6 +143,12 @@ class Pipable():
     # specified model is invalid
     else:
       print(model, ": No such model found. Ensure that correct model_id is entered. Refer to .get_help() for model ids.")
+      return ({
+        "isError": True,
+        "output": "No expert found",
+        "model_id": "",
+        "dtype": "ERROR"
+      })
 
   def get_help(self):
     print("You can ask any question using the ask function. It takes two Parameters, query and model. Different models and their query are mentioned below:")
@@ -142,12 +160,6 @@ class Pipable():
     score = int(jnp.argmax(self.action_sem_search.find_similar_score(query_list=query)))
     model = list(self.action_desc.keys())[score]
     return copy.deepcopy(self.key2method[model])
-
-  def get_outputs(self, howmany = 0):
-    if howmany == 0:
-      return self._all_outputs
-    else:
-      return self._all_outputs[-howmany:]
     
   def reset_llm(self):
     self.llm_.reset_thread()

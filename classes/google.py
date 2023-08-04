@@ -45,7 +45,7 @@ class _google_search():
     response = gs.cse().list(q=query, cx=self.programmable_search_engine_api_key).execute()
 
     if int(response['searchInformation']['totalResults']) == 0:
-      return (0, "No results returned.")
+      return (1, "No results returned.")
 
     ite=1
     output = []
