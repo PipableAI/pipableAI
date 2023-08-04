@@ -1,5 +1,6 @@
 import copy
 import os
+import logging
 
 import jax.numpy as jnp
 import pandas as pd
@@ -11,6 +12,9 @@ from classes.pandas import _pandas_search
 from classes.postgres import _postgres_search
 from classes.reader import _data_reader
 from classes.semantic import _semantic_search
+from pipable_utils import PIPABLE_LOGGER_CREATE
+    
+PIPABLE_LOG = PIPABLE_LOGGER_CREATE("PIP_MAIN")
 
 class Pipable():
   def __init__(self, path = ""):
@@ -88,17 +92,20 @@ class Pipable():
       })
       temp.to_parquet("logs.parquet", engine = 'pyarrow')
     self._all_outputs = []
+    PIPABLE_LOG.info(f"Pipable class instantiated from {path}")
   
   def ask(self,query,model=""):
     # model auto selection based on query
     if model == "":
       score = int(jnp.argmax(self.action_sem_search.find_similar_score(query_list=query)))
       model = list(self.action_desc.keys())[score]
+      PIPABLE_LOG.info(f"Sem search resolved query to expert model {model} (score of {score})")
     # specified or auto selected model is valid
     if model in self.action_desc:
       if model == "data_search":
         contextscore = int(jnp.argmax(self.context_sem_search.find_similar_score(query_list=query)))
         smartcontext = list(self.context.values())[contextscore]
+        PIPABLE_LOG.debug(f"data_search: q:{query}, smartcontext:{smartcontext[:20]}....")
         flag, result = self.key2method[model](query, smartcontext)
       else:
         flag, result = self.key2method[model](query)
