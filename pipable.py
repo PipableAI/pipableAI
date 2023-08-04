@@ -139,7 +139,7 @@ class Pipable():
         "output": result,
         "model_id": model,
         "dtype": datatype
-      })
+      },)
     # specified model is invalid
     else:
       print(model, ": No such model found. Ensure that correct model_id is entered. Refer to .get_help() for model ids.")
@@ -148,7 +148,7 @@ class Pipable():
         "output": "No expert found",
         "model_id": "",
         "dtype": "ERROR"
-      })
+      },)
 
   def get_help(self):
     print("You can ask any question using the ask function. It takes two Parameters, query and model. Different models and their query are mentioned below:")
