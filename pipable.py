@@ -4,12 +4,11 @@ search queries which are mapped to SQL queries using a using the pipLLM.
 
 This module provides classes and functions for connecting to a PostgreSQL database and using a language model to generate SQL queries.
 
-Author: Your Name
 """
 
 import pandas as pd
 
-from core.logger import dev_logger
+from core.dev_logger import dev_logger
 from core.postgresql_connector import PostgresConfig, PostgresConnector
 from llm_client.pipllm import PipLlmApiClient
 
@@ -66,7 +65,7 @@ class Pipable:
             self.connection.disconnect()
             self.connected = False
 
-    def retrieve_all_tables(self):
+    def _retrieve_all_tables(self):
         # Query to retrieve all table names in the database
         query = """
         SELECT table_name
@@ -106,10 +105,10 @@ class Pipable:
             if context is None:
                 # Retrieve create table queries for all tables if context is not provided
                 if self.all_table_queries is None:
-                    self.retrieve_all_tables()
+                    self._retrieve_all_tables()
 
                 # Concatenate create table queries for all tables into context
-                context = "\n".join(self.all_table_queries.values())
+                context = ";".join(self.all_table_queries.values())
 
             # Generate SQL query from LLM
             sql_query = self._generate_sql_query(context, question)
