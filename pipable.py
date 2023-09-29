@@ -1,165 +1,114 @@
-import copy
-import os
-import logging
+# pipable/pipable.py
+"""Pipable: A Python package for connecting to a remote PostgreSQL server, generating and executing the natural langauge based data 
+search queries which are mapped to SQL queries using a using the pipLLM.
 
-import jax.numpy as jnp
+This module provides classes and functions for connecting to a PostgreSQL database and using a language model to generate SQL queries.
+
+Author: Your Name
+"""
+
+from core.postgresql_connector import PostgresConfig, PostgresConnector
+from llm_client.pipllm import PipLlmApiClient
+
 import pandas as pd
-import yaml
 
-from classes.google import _google_search
-from classes.llm import _llm
-from classes.pandas import _pandas_search
-from classes.postgres import _postgres_search
-from classes.reader import _data_reader
-from classes.semantic import _semantic_search
-from pipable_utils import PIPABLE_LOGGER_CREATE
-    
-PIPABLE_LOG = PIPABLE_LOGGER_CREATE("PIP_MAIN")
+class Pipable:
+    """A class for connecting to a remote PostgreSQL server and generating SQL queries.
 
-class Pipable():
-  def __init__(self, path = ""):
-    super().__init__()
-    
-    with open(path) as f:
-      config = yaml.safe_load(f)
+    This class provides methods for establishing a connection to a remote PostgreSQL server and using a language model to generate SQL queries.
+    """
+    def __init__(self, postgres_config: PostgresConfig, llm_api_base_url: str):
+        """Initialize a Pipable instance.
 
-    self.reader = _data_reader()
-    self.llm_ = _llm(openaiAPIKEY=config["keys"]["openAI"])
-    self.sem_s = _semantic_search()
-    self.askgoogle = _google_search().initialise(
-      google_api_key=config["keys"]["google"],
-      search_engine_key=config["keys"]["search_engine"]
-    )
+        Args:
+            postgres_config (PostgresConfig): The configuration for connecting to the PostgreSQL server.
+            llm_api_base_url (str): The base URL of the language model API.
+        """
+        self.postgres_config = postgres_config
+        self.llm_api_client = PipLlmApiClient(llm_api_base_url)
+        self.connected = False
+        self.connection = None
+        self.all_table_queries = None  # Store create table queries for all tables
 
-    self.action_desc = config["action_desc"]
-    #WARNING: use action_sem_search for all semantic search functions related to action_desc ONLY
-    self.action_sem_search = copy.deepcopy(self.sem_s)
-    self.action_sem_search.create_key_vectors(list(self.action_desc.values()))
+    def _generate_sql_query(self, context, question):
+        generated_text = self.llm_api_client.generate_text(context, question)
+        if not generated_text:
+            raise ValueError("LLM did not generate a valid SQL query.")
+        return generated_text.strip()
 
-    self.context = config["context"]
-    #WARNING: use context_sem_search for all semantic search functions related to context ONLY
-    self.context_sem_search = copy.deepcopy(self.sem_s)
-    self.context_sem_search.create_key_vectors(list(self.context.values()))
+    def connect(self):
+        """Establish a connection to the PostgreSQL server.
 
-    dataType = config["dataType"]
-    if dataType == "csv" or dataType == "parquet" or dataType == "pdf":
-      output = None
-      if dataType == "csv":
-        flag, output = self.reader.read_csv(config["pathToData"])
-        if flag == 1:
-          print(output)
-          return
-      elif dataType == "parquet":
-        flag, output = self.reader.read_parquet(config["pathToData"])
-        if flag == 1:
-          print(output)
-          return
-      elif dataType == "pdf":
-        flag, output = self.reader.read_pdf(config["pathToData"])
-        if flag == 1:
-          print(output)
-          return
-      self.datasearch = _pandas_search(openai_key=config["keys"]["openAI"],df=output, pathlog=config["pathToData"], datatype=dataType).initialize()
-    elif dataType == "postgres":
-      self.datasearch = _postgres_search(openai_key=config["keys"]["openAI"],file_path=config["pathToData"]).initialize()
-    else:
-      print("ERROR: no valid data type specified. Valid data types are csv, parquet, PDF, and postgres.")
-      return
-        
-    self.key2method = {
-      "llm":self.llm_.ask_llm,
-      "llm_google":self.llm_.ask_llm,
-      "find_similar_score":self.sem_s.find_similar_score,
-      "create_key_vectors":self.sem_s.create_key_vectors,
-      "vectorize":self.sem_s.vectorize,
-      "google_search":self.askgoogle.ask_google,
-      "data_search":self.datasearch.search_data,
-      "read_csv":self.reader.read_csv,
-      "read_parquet":self.reader.read_parquet,
-      "read_pdf":self.reader.read_pdf
-    }
-    #WARNING: exposed read functions do not override all configurations related to initialization
-    if not os.path.exists("logs.parquet"):
-      temp = pd.DataFrame({
-        "timestamp": [],
-        "query": [],
-        "datatype": [],
-        "database": [],
-        "pipableAI": [],
-        "openAI": [],
-        "success": [],
-        "error": []
-      })
-      temp.to_parquet("logs.parquet", engine = 'pyarrow')
-    PIPABLE_LOG.info(f"Pipable class instantiated from {path}")
-  
-  def ask(self,query,model=""):
-    # model auto selection based on query
-    if model == "":
-      score = int(jnp.argmax(self.action_sem_search.find_similar_score(query_list=query)))
-      model = list(self.action_desc.keys())[score]
-      PIPABLE_LOG.info(f"Sem search resolved query to expert model {model} (score of {score})")
-    # specified or auto selected model is valid
-    if model in self.action_desc:
-      if model == "data_search":
-        contextscore = int(jnp.argmax(self.context_sem_search.find_similar_score(query_list=query)))
-        smartcontext = list(self.context.values())[contextscore]
-        PIPABLE_LOG.debug(f"data_search: q:{query}, smartcontext:{smartcontext[:20]}....")
-        flag, result = self.key2method[model](query, smartcontext)
-      else:
-        flag, result = self.key2method[model](query)
+        This method establishes a connection to the remote PostgreSQL server using the provided configuration.
 
-      datatype = ""
-      try:
-        datatype = result.dtype
-      except:
-        datatype = type(result)
-      if flag == 1:
-        datatype = "ERROR"
+        Raises:
+            ConnectionError: If the connection to the server cannot be established.
+        """
+        if not self.connected:
+            self.connection = PostgresConnector(self.postgres_config)
+            self.connection.connect()
+            self.connected = True
 
-      if model == "llm_google":
-        googflag, googres = self.askgoogle.ask_google(result)
-        googdtype = type(googres)
-        if googflag == 1:
-          googdtype = "ERROR"
+    def disconnect(self):
+        """Close the connection to the PostgreSQL server.
 
-        return ({
-          "isError": bool(flag),
-          "output": result,
-          "model_id": "llm",
-          "dtype": datatype
-        }, {
-          "isError": bool(googflag),
-          "output": googres,
-          "model_id": "google_search",
-          "dtype": googdtype
-        })
-      return ({
-        "isError": bool(flag),
-        "output": result,
-        "model_id": model,
-        "dtype": datatype
-      },)
-    # specified model is invalid
-    else:
-      print(model, ": No such model found. Ensure that correct model_id is entered. Refer to .get_help() for model ids.")
-      return ({
-        "isError": True,
-        "output": "No expert found",
-        "model_id": "",
-        "dtype": "ERROR"
-      },)
+        This method closes the connection to the remote PostgreSQL server.
+        """
+        if self.connected:
+            self.connection.disconnect()
+            self.connected = False
 
-  def get_help(self):
-    print("You can ask any question using the ask function. It takes two Parameters, query and model. Different models and their query are mentioned below:")
-    print("MODEL\t\tDESCRIPTION")
-    for i in self.action_desc:
-      print(i,"\t\t",self.action_desc[i])
-  
-  def find_action(self, query):
-    score = int(jnp.argmax(self.action_sem_search.find_similar_score(query_list=query)))
-    model = list(self.action_desc.keys())[score]
-    return copy.deepcopy(self.key2method[model])
-    
-  def reset_llm(self):
-    self.llm_.reset_thread()
+    def retrieve_all_tables(self):
+        # Query to retrieve all table names in the database
+        query = """
+        SELECT table_name
+        FROM information_schema.tables
+        WHERE table_schema = 'public'
+        AND table_type = 'BASE TABLE';
+        """
+
+        result = self.connection.execute_query(query)
+        table_names = result["table_name"].tolist()
+
+        # Generate create table queries for all tables
+        self.all_table_queries = {}
+        for table_name in table_names:
+            query = f"SHOW CREATE TABLE {table_name};"
+            result = self.connection.execute_query(query)
+            create_table_query = result.iloc[0]["create_statement"]
+            self.all_table_queries[table_name] = create_table_query
+
+    def ask(self, context=None, question=None):
+        """Generate an SQL query and execute it on the PostgreSQL server.
+
+        Args:
+            context (str, optional): The context or CREATE TABLE statements for the query. If not provided, it will be auto-generated.
+            question (str, optional): The query to perform in simple English.
+
+        Returns:
+            pandas.DataFrame: A DataFrame containing the query result.
+
+        Raises:
+            ValueError: If the language model does not generate a valid SQL query.
+        """
+        try:
+            # Connect to PostgreSQL if not already connected
+            self.connect()
+
+            if context is None:
+                # Retrieve create table queries for all tables if context is not provided
+                if self.all_table_queries is None:
+                    self.retrieve_all_tables()
+
+                # Concatenate create table queries for all tables into context
+                context = "\n".join(self.all_table_queries.values())
+
+            # Generate SQL query from LLM
+            sql_query = self._generate_sql_query(context, question)
+
+            # Execute SQL query
+            result_df = self.connection.execute_query(sql_query)
+
+            return result_df
+        except Exception as e:
+            raise Exception(f"Error in 'ask' method: {str(e)}")

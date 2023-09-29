@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>&lt;no title&gt; &#8212; Pipable 1.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
+    <script src="_static/jquery.js?v=5d32c60e"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="_static/documentation_options.js?v=8d563738"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <p id="module-llm_client.pipllm"><span id="pipllm-py"></span>Pipable Client</p>
+<p>This module provides a client interface for interacting with the Pipable package.
+It allows users to send queries to a language model and get the response.</p>
+<dl>
+<dt>Classes:</dt><dd><ul class="simple">
+<li><p>PipableClient: A client class for querying the language model and executing SQL queries on the server.</p></li>
+</ul>
+</dd>
+<dt>Example:</dt><dd><p>To use this client, create an instance of <cite>PipableClient</cite>, configure it with the necessary parameters,
+and use the <cite>ask</cite> method to send queries and retrieve results.</p>
+<p>Example:
+<a href="#id1"><span class="problematic" id="id2">``</span></a>`
+python
+from pipable.client import PipableClient</p>
+<p># Create a PipableClient instance
+client = PipableClient(llm_api_url=”<a class="reference external" href="https://your-llm-api-url.com">https://your-llm-api-url.com</a>”)</p>
+<p># Send a query to the language model and execute it on the server
+result_df = client.ask(context=”CREATE TABLE Employees (ID INT, NAME TEXT);”, question=”List all employees.”)
+<a href="#id3"><span class="problematic" id="id4">``</span></a><a href="#id5"><span class="problematic" id="id6">`</span></a></p>
+</dd>
+</dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="llm_client.pipllm.PipLlmApiClient">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">llm_client.pipllm.</span></span><span class="sig-name descname"><span class="pre">PipLlmApiClient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">api_base_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#llm_client.pipllm.PipLlmApiClient" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A client class for interacting with the Language Model API.</p>
+<p>This class provides methods to communicate with a language model API to generate SQL queries
+based on contextual information and user queries. It facilitates sending requests to the API
+and receiving generated SQL queries as responses.</p>
+<dl>
+<dt>Args:</dt><dd><p>api_base_url (str): The base URL of the Language Model API.</p>
+</dd>
+<dt>Example:</dt><dd><p>To use this client, create an instance of <cite>PipLlmApiClient</cite>, configure it with the API base URL,
+and use the <cite>generate_query</cite> method to generate SQL queries.</p>
+<p>Example:
+<a href="#id7"><span class="problematic" id="id8">``</span></a><a href="#id9"><span class="problematic" id="id10">`</span></a>python
+from pipable.pip_llm_api_client import PipLlmApiClient</p>
+<p># Create a PipLlmApiClient instance
+llm_api_client = PipLlmApiClient(api_base_url=”<a class="reference external" href="https://your-llm-api-url.com">https://your-llm-api-url.com</a>”)</p>
+<p># Generate an SQL query based on context and user query
+context = “CREATE TABLE Employees (ID INT, NAME TEXT);”
+user_query = “List all employees.”
+generated_query = llm_api_client.generate_query(context, user_query)
+<a href="#id11"><span class="problematic" id="id12">``</span></a><a href="#id13"><span class="problematic" id="id14">`</span></a></p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="llm_client.pipllm.PipLlmApiClient.generate_text">
+<span class="sig-name descname"><span class="pre">generate_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">question</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#llm_client.pipllm.PipLlmApiClient.generate_text" title="Link to this definition"></a></dt>
+<dd><p>Generate an SQL query based on contextual information and user query.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>context (str): The context or CREATE TABLE statements for the query.
+user_query (str): The user’s query in simple English.</p>
+</dd>
+<dt>Returns:</dt><dd><p>str: The generated SQL query.</p>
+</dd>
+<dt>Raises:</dt><dd><p>requests.exceptions.RequestException: If there is an issue with the API request.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="llm_client.pipllm.PipLlmApiClient.train_llm">
+<span class="sig-name descname"><span class="pre">train_llm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#llm_client.pipllm.PipLlmApiClient.train_llm" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Pipable</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pipable.html"><code class="docutils literal notranslate"><span class="pre">Pipable</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="postgresql_connector.html"><code class="docutils literal notranslate"><span class="pre">PostgresConfig</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="postgresql_connector.html#core.postgresql_connector.PostgresConnector"><code class="docutils literal notranslate"><span class="pre">PostgresConnector</span></code></a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, Pipable.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="_sources/llm_client_pipllm.rst.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
