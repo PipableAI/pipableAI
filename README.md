@@ -65,7 +65,7 @@ llm_api_base_url = "https://your-llm-api-url/"
 pipable = Pipable(postgres_config=postgres_config, llm_api_base_url=llm_api_base_url)
 
 # Example: Execute a natural language query
-result = pipable.execute_query("Find all employees hired in the last month.")
+result = pipable.ask("Find all employees hired in the last month.")
 
 # Process the results
 for row in result:
