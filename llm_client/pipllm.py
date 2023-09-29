@@ -23,8 +23,10 @@ Example:
     ```
 """
 
-import requests
 import json
+
+import requests
+
 
 class PipLlmApiClient:
     """A client class for interacting with the Language Model API.
@@ -53,6 +55,7 @@ class PipLlmApiClient:
         generated_query = llm_api_client.generate_query(context, user_query)
         ```
     """
+
     def __init__(self, api_base_url: str):
         """Initialize a PipLlmApiClient instance.
 
@@ -60,6 +63,7 @@ class PipLlmApiClient:
             api_base_url (str): The base URL of the Language Model API.
         """
         self.api_base_url = api_base_url
+        self.logger.info("PipLlmApiClient initialized")
 
     def generate_text(self, context: str, question: str) -> str:
         """Generate an SQL query based on contextual information and user query.
@@ -94,6 +98,7 @@ class PipLlmApiClient:
             return response.json()
         except requests.exceptions.RequestException as e:
             raise Exception(f"Error making POST request: {str(e)}")
+
 
 # Example usage:
 if __name__ == "__main__":

@@ -13,9 +13,11 @@ Functions:
 Author: Pipable
 """
 
-import psycopg2
-import pandas as pd
 from dataclasses import dataclass
+
+import pandas as pd
+import psycopg2
+
 
 @dataclass
 class PostgresConfig:
@@ -25,6 +27,7 @@ class PostgresConfig:
     user: str
     password: str
 
+
 class PostgresConnector:
     """A class for establishing and managing the PostgreSQL database connection.
 
@@ -33,11 +36,11 @@ class PostgresConnector:
 
     Args:
         config (PostgresConfig): The configuration for connecting to the PostgreSQL server.
-    
+
     Example:
         To establish a connection and execute a query, create an instance of `PostgresConnector` and
         call the `execute_query` method.
-        
+
         Example:
         ```python
         from pipable.connector import PostgresConnector, PostgresConfig
@@ -58,6 +61,7 @@ class PostgresConnector:
         result = connector.execute_query("SELECT * FROM Employees")
         ```
     """
+
     def __init__(self, config: PostgresConfig):
         """Initialize a PostgresConnector instance.
 
@@ -79,7 +83,9 @@ class PostgresConnector:
             )
             self.cursor = self.connection.cursor()
         except psycopg2.Error as e:
-            raise ConnectionError(f"Failed to connect to the PostgreSQL server: {str(e)}")
+            raise ConnectionError(
+                f"Failed to connect to the PostgreSQL server: {str(e)}"
+            )
 
     def disconnect(self):
         if self.cursor:
@@ -88,7 +94,7 @@ class PostgresConnector:
             self.connection.close()
 
     def execute_query(self, query: str) -> pd.DataFrame:
-        """Execute an SQL query on the connected PostgreSQL server and return the result as 
+        """Execute an SQL query on the connected PostgreSQL server and return the result as
         a Pandas DataFrame.
 
         Args:
@@ -107,6 +113,7 @@ class PostgresConnector:
             df = pd.DataFrame(data, columns=columns)
             return df
         except psycopg2.Error as e:
-            raise ValueError(f"SQL query execution error: {str(e)}")
+            raise ValueError(f"SQL query execution error: {e}")
+
 
 __all__ = ["PostgresConfig", "PostgresConnector"]

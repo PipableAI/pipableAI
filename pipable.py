@@ -7,16 +7,20 @@ This module provides classes and functions for connecting to a PostgreSQL databa
 Author: Your Name
 """
 
+import pandas as pd
+
+from core.logger import dev_logger
 from core.postgresql_connector import PostgresConfig, PostgresConnector
 from llm_client.pipllm import PipLlmApiClient
 
-import pandas as pd
 
 class Pipable:
-    """A class for connecting to a remote PostgreSQL server and generating SQL queries.
+    """A class for connecting to a remote PostgreSQL server and executing SQL queries using llm.
 
-    This class provides methods for establishing a connection to a remote PostgreSQL server and using a language model to generate SQL queries.
+    This class provides methods for establishing a connection to a remote PostgreSQL server
+    and using a language model to generate SQL queries.
     """
+
     def __init__(self, postgres_config: PostgresConfig, llm_api_base_url: str):
         """Initialize a Pipable instance.
 
@@ -28,12 +32,16 @@ class Pipable:
         self.llm_api_client = PipLlmApiClient(llm_api_base_url)
         self.connected = False
         self.connection = None
+        self.logger = dev_logger()
+        self.logger.info("logger initialized in Pipable")
         self.all_table_queries = None  # Store create table queries for all tables
 
     def _generate_sql_query(self, context, question):
+        self.logger.info("generating query using llm")
         generated_text = self.llm_api_client.generate_text(context, question)
         if not generated_text:
-            raise ValueError("LLM did not generate a valid SQL query.")
+            self.logger.error(f"LLM failed to generate a SQL query: {e}")
+            raise ValueError("LLM failed to generate a SQL query.")
         return generated_text.strip()
 
     def connect(self):
