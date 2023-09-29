@@ -30,7 +30,7 @@ Pipable simplifies the process of querying a PostgreSQL database by allowing use
 Install Pipable using `pip`:
 
 ```bash
-pip install pipable
+pip3 install pipable
 ```
 
 ## Usage
