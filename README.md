@@ -27,11 +27,23 @@ Pipable simplifies the process of querying a PostgreSQL database by allowing use
 
 ## Installation
 
-Install Pipable using `pip`:
+You can install Pipable using either the source distribution (tar.gz) or the wheel distribution (whl) available in the `dist/` directory.
+
+### From Source Distribution (tar.gz)
 
 ```bash
-pip3 install pipable
+pip3 install dist/pipable-<version>.tar.gz
 ```
+
+Replace `<version>` with the appropriate version number of the package.
+
+### From Wheel Distribution (whl)
+
+```bash
+pip3 install dist/pipable-<version>-py3-none-any.whl
+```
+
+Replace `<version>` with the appropriate version number of the package [current:1.0.0].
 
 ## Usage
 
