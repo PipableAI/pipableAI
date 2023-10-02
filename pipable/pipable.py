@@ -8,9 +8,9 @@ This module provides classes and functions for connecting to a PostgreSQL databa
 
 import pandas as pd
 
-from core.dev_logger import dev_logger
-from core.postgresql_connector import PostgresConfig, PostgresConnector
-from llm_client.pipllm import PipLlmApiClient
+from .core.dev_logger import dev_logger
+from .core.postgresql_connector import PostgresConfig, PostgresConnector
+from .llm_client.pipllm import PipLlmApiClient
 
 
 class Pipable:
