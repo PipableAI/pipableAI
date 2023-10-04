@@ -6,10 +6,12 @@ This module provides classes and functions for connecting to a PostgreSQL databa
 
 """
 
-import pandas as pd
+from pandas import DataFrame
 
 from .core.dev_logger import dev_logger
 from .core.postgresql_connector import PostgresConfig, PostgresConnector
+from .interfaces.database_connector_interface import DatabaseConnectorInterface
+from .interfaces.llm_api_client_interface import LlmApiClientInterface
 from .llm_client.pipllm import PipLlmApiClient
 
 
@@ -20,15 +22,19 @@ class Pipable:
     and using a language model to generate SQL queries.
     """
 
-    def __init__(self, postgres_config: PostgresConfig, llm_api_base_url: str):
+    def __init__(
+        self,
+        database_connector: DatabaseConnectorInterface,
+        llm_api_client: LlmApiClientInterface,
+    ):
         """Initialize a Pipable instance.
 
         Args:
             postgres_config (PostgresConfig): The configuration for connecting to the PostgreSQL server.
             llm_api_base_url (str): The base URL of the language model API.
         """
-        self.postgres_config = postgres_config
-        self.llm_api_client = PipLlmApiClient(llm_api_base_url)
+        self.database_connector = database_connector
+        self.llm_api_client = llm_api_client
         self.connected = False
         self.connection = None
         self.logger = dev_logger()
@@ -44,52 +50,83 @@ class Pipable:
         return generated_text.strip()
 
     def connect(self):
-        """Establish a connection to the PostgreSQL server.
+        """Establish a connection to the Database server.
 
-        This method establishes a connection to the remote PostgreSQL server using the provided configuration.
+        This method establishes a connection to the remote PostgreSQL server using the provided database connector.
 
         Raises:
             ConnectionError: If the connection to the server cannot be established.
         """
         if not self.connected:
-            self.connection = PostgresConnector(self.postgres_config)
-            self.connection.connect()
-            self.connected = True
+            try:
+                self.database_connector.connect()
+                self.connected = True
+            except Exception as e:
+                self.logger.error(f"Failed to connect to the database: {str(e)}")
+                raise ConnectionError("Failed to connect to the database.")
 
     def disconnect(self):
-        """Close the connection to the PostgreSQL server.
+        """Close the connection to the Database server.
 
         This method closes the connection to the remote PostgreSQL server.
         """
         if self.connected:
-            self.connection.disconnect()
-            self.connected = False
+            try:
+                self.database_connector.disconnect()
+                self.connected = False
+            except Exception as e:
+                self.logger.error(f"Failed to disconnect from the database: {str(e)}")
+                raise ConnectionError("Failed to disconnect from the database.")
 
-    def _retrieve_all_tables(self):
-        # Query to retrieve all table names in the database
-        query = """
-        SELECT table_name
-        FROM information_schema.tables
-        WHERE table_schema = 'public'
-        AND table_type = 'BASE TABLE';
+    def _generate_create_table_statements(self, table_names=None):
+        """Generate CREATE TABLE statements for the specified tables or all tables in the database."""
+        if self.all_table_queries is not None:
+            return self.all_table_queries
+        # Check if specific table names are provided, else get all tables
+        if table_names is not None and len(table_names) > 0:
+            tables_to_fetch = ",".join([f"'{table}'" for table in table_names])
+            where_clause = f"WHERE table_name IN ({tables_to_fetch})"
+        else:
+            where_clause = "WHERE table_schema = 'public'"
+
+        # SQL query to extract column names and data types
+        column_info_query = f"""
+        SELECT table_name, column_name, data_type
+        FROM information_schema.columns
+        {where_clause};
         """
 
-        result = self.connection.execute_query(query)
-        table_names = result["table_name"].tolist()
+        try:
+            # Execute the SQL query using the database connector and get the result as DataFrame
+            column_info_df = self.database_connector.execute_query(column_info_query)
 
-        # Generate create table queries for all tables
-        self.all_table_queries = {}
-        for table_name in table_names:
-            query = f"SHOW CREATE TABLE {table_name};"
-            result = self.connection.execute_query(query)
-            create_table_query = result.iloc[0]["create_statement"]
-            self.all_table_queries[table_name] = create_table_query
+            # Group column info by table name using Pandas groupby
+            grouped_columns = column_info_df.groupby("table_name").apply(
+                lambda x: ", ".join(
+                    [
+                        f"{row['column_name']} {row['data_type']}"
+                        for _, row in x.iterrows()
+                    ]
+                )
+            )
 
-    def ask(self, context=None, question=None):
+            # Generate CREATE TABLE statements in Python
+            self.all_table_queries = [
+                f"CREATE TABLE {table_name} ({columns});"
+                for table_name, columns in grouped_columns.items()
+            ]
+
+            return self.all_table_queries
+        except Exception as e:
+            self.logger.error(f"Error generating CREATE TABLE statements: {str(e)}")
+            raise ValueError("Error generating CREATE TABLE statements.")
+
+    def ask(self, question=None, table_names=None) -> DataFrame:
         """Generate an SQL query and execute it on the PostgreSQL server.
 
         Args:
-            context (str, optional): The context or CREATE TABLE statements for the query. If not provided, it will be auto-generated.
+            table_names (list, optional): The list of table names for the query context.
+            If not provided, it will be auto-generated.
             question (str, optional): The query to perform in simple English.
 
         Returns:
@@ -102,19 +139,18 @@ class Pipable:
             # Connect to PostgreSQL if not already connected
             self.connect()
 
-            if context is None:
-                # Retrieve create table queries for all tables if context is not provided
-                if self.all_table_queries is None:
-                    self._retrieve_all_tables()
-
-                # Concatenate create table queries for all tables into context
-                context = ";".join(self.all_table_queries.values())
+            # Generate CREATE TABLE statements for the specified tables or all tables
+            create_table_statements = self._generate_create_table_statements(
+                table_names
+            )
+            # Concatenate create table statements into a single line for context
+            context = " ".join(create_table_statements)
 
             # Generate SQL query from LLM
             sql_query = self._generate_sql_query(context, question)
 
             # Execute SQL query
-            result_df = self.connection.execute_query(sql_query)
+            result_df = self.database_connector.execute_query(sql_query)
 
             return result_df
         except Exception as e:

@@ -27,8 +27,11 @@ import json
 
 import requests
 
+from ..core.dev_logger import dev_logger
+from ..interfaces.llm_api_client_interface import LlmApiClientInterface
 
-class PipLlmApiClient:
+
+class PipLlmApiClient(LlmApiClientInterface):
     """A client class for interacting with the Language Model API.
 
     This class provides methods to communicate with a language model API to generate SQL queries
@@ -63,7 +66,6 @@ class PipLlmApiClient:
             api_base_url (str): The base URL of the Language Model API.
         """
         self.api_base_url = api_base_url
-        self.logger.info("PipLlmApiClient initialized")
 
     def generate_text(self, context: str, question: str) -> str:
         """Generate an SQL query based on contextual information and user query.
@@ -84,13 +86,6 @@ class PipLlmApiClient:
         response = self._make_post_request(url, data)
         return response.get("output")
 
-    def train_llm(self, dataset_path):
-        endpoint = "/train"
-        url = self.api_base_url + endpoint
-        data = {"dataset_path": dataset_path}
-        response = self._make_post_request(url, data)
-        return response
-
     def _make_post_request(self, url, data):
         try:
             response = requests.post(url, json=data)
@@ -99,22 +94,5 @@ class PipLlmApiClient:
         except requests.exceptions.RequestException as e:
             raise Exception(f"Error making POST request: {str(e)}")
 
-
-# Example usage:
-if __name__ == "__main__":
-    api_base_url = "https://your-llm-api-url.com"
-    client = PipLlmApiClient(api_base_url)
-
-    # Example 1: Generate text from LLM
-    context = "<DETAILS ABOUT TABLE>"
-    question = "<QUERY TO PERFORM IN SIMPLE ENGLISH>"
-    generated_text = client.generate_text(context, question)
-    print("Generated Text:", generated_text)
-
-    # Example 2: Fine-tune LLM
-    dataset_path = "<PATH TO DATASET.JSON>"
-    response = client.train_llm(dataset_path)
-    print("Training Status:", response.get("status"))
-    print("Message:", response.get("message"))
 
 __all__ = ["PipLlmApiClient"]

@@ -11,7 +11,7 @@ import sys
 
 import sphinx_rtd_theme
 
-sys.path.insert(0, os.path.abspath("../../pipable/"))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # Set the theme to 'sphinx_rtd_theme'
 html_theme = "sphinx_rtd_theme"

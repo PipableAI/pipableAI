@@ -15,8 +15,10 @@ Author: Pipable
 
 from dataclasses import dataclass
 
-import pandas as pd
 import psycopg2
+from pandas import DataFrame
+
+from ..interfaces.database_connector_interface import DatabaseConnectorInterface
 
 
 @dataclass
@@ -28,7 +30,7 @@ class PostgresConfig:
     password: str
 
 
-class PostgresConnector:
+class PostgresConnector(DatabaseConnectorInterface):
     """A class for establishing and managing the PostgreSQL database connection.
 
     This class provides methods for connecting to a remote PostgreSQL server and executing SQL queries.
@@ -93,7 +95,7 @@ class PostgresConnector:
         if self.connection:
             self.connection.close()
 
-    def execute_query(self, query: str) -> pd.DataFrame:
+    def execute_query(self, query: str) -> DataFrame:
         """Execute an SQL query on the connected PostgreSQL server and return the result as
         a Pandas DataFrame.
 
@@ -110,7 +112,7 @@ class PostgresConnector:
             self.cursor.execute(query)
             columns = [desc[0] for desc in self.cursor.description]
             data = self.cursor.fetchall()
-            df = pd.DataFrame(data, columns=columns)
+            df = DataFrame(data, columns=columns)
             return df
         except psycopg2.Error as e:
             raise ValueError(f"SQL query execution error: {e}")
