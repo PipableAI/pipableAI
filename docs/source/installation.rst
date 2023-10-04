@@ -9,7 +9,7 @@ To install Pipable, you can use `pip`, Python's package manager. Open your termi
 
 This will download and install the latest version of Pipable and its dependencies.
 
-**Note:** Pipable requires Python 3.6 or higher.
+**Note:** Pipable requires Python 3.7 or higher.
 
 If you prefer to install Pipable from source, you can clone the GitHub repository and install it using `setup.py`. Navigate to the project directory and run:
 
