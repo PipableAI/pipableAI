@@ -7,33 +7,33 @@ Pipable simplifies the process of connecting to a remote PostgreSQL server, gene
 
    To start using Pipable, import the necessary classes and interfaces:
 
-   ```python
-   from pipable import Pipable
-   from pipable.llm_client.pipllm import PipLlmApiClient
-   from pipable.core.postgresql_connector import PostgresConfig, PostgresConnector
-   ```
+   .. code-block:: python
+
+      from pipable import Pipable
+      from pipable.llm_client.pipllm import PipLlmApiClient
+      from pipable.core.postgresql_connector import PostgresConfig, PostgresConnector
 
 2. **Initialize Pipable:**
 
    Create an instance of Pipable by providing the required database configuration and LLM API base URL:
 
-   ```python
-   # Define PostgreSQL configuration
-   postgres_config = PostgresConfig(
-       host="your_postgres_host",
-       port=5432,  # Replace with your port number
-       database="your_database_name",
-       user="your_username",
-       password="your_password",
-   )
+   .. code-block:: python
 
-   # Initialize the database connector and LLM API client
-   database_connector = PostgresConnector(postgres_config)
-   llm_api_client = PipLlmApiClient(api_base_url="https://your-llm-api-url.com")
+      # Define PostgreSQL configuration
+      postgres_config = PostgresConfig(
+          host="your_postgres_host",
+          port=5432,  # Replace with your port number
+          database="your_database_name",
+          user="your_username",
+          password="your_password",
+      )
 
-   # Create a Pipable instance
-   pipable_instance = Pipable(database_connector=database_connector, llm_api_client=llm_api_client)
-   ```
+      # Initialize the database connector and LLM API client
+      database_connector = PostgresConnector(postgres_config)
+      llm_api_client = PipLlmApiClient(api_base_url="https://your-llm-api-url.com")
+
+      # Create a Pipable instance
+      pipable_instance = Pipable(database_connector=database_connector, llm_api_client=llm_api_client)
 
 3. **Generate and Execute Queries:**
 
@@ -41,48 +41,48 @@ Pipable simplifies the process of connecting to a remote PostgreSQL server, gene
 
    - When `table_names` is an empty list:
 
-   ```python
-   # Generate a query using the language model
-   table_names = []
-   question = "List all employees."
-   try:
-       # Generate and execute the query
-       result_df = pipable_instance.ask(question, table_names)
-       print("Query Result:")
-       print(result_df)
-   except Exception as e:
-       print(f"Error: {e}")
-   ```
+   .. code-block:: python
+
+      # Generate a query using the language model
+      table_names = []
+      question = "List all employees."
+      try:
+          # Generate and execute the query
+          result_df = pipable_instance.ask(question, table_names)
+          print("Query Result:")
+          print(result_df)
+      except Exception as e:
+          print(f"Error: {e}")
 
    - When `table_names` is None or not passed in:
 
-   ```python
-   # Generate a query using the language model
-   table_names = None
-   question = "List all employees."
-   try:
-       # Generate and execute the query
-       result_df = pipable_instance.ask(question)
-       print("Query Result:")
-       print(result_df)
-   except Exception as e:
-       print(f"Error: {e}")
-   ```
+   .. code-block:: python
+
+      # Generate a query using the language model
+      table_names = None
+      question = "List all employees."
+      try:
+          # Generate and execute the query
+          result_df = pipable_instance.ask(question)
+          print("Query Result:")
+          print(result_df)
+      except Exception as e:
+          print(f"Error: {e}")
 
    - When `table_names` is populated with correct table names:
 
-   ```python
-   # Generate a query using the language model
-   table_names = ["table1", "table2", "table3"]
-   question = "List all employees."
-   try:
-       # Generate and execute the query
-       result_df = pipable_instance.ask(question, table_names)
-       print("Query Result:")
-       print(result_df)
-   except Exception as e:
-       print(f"Error: {e}")
-   ```
+   .. code-block:: python
+
+      # Generate a query using the language model
+      table_names = ["table1", "table2", "table3"]
+      question = "List all employees."
+      try:
+          # Generate and execute the query
+          result_df = pipable_instance.ask(question, table_names)
+          print("Query Result:")
+          print(result_df)
+      except Exception as e:
+          print(f"Error: {e}")
 
    Handle exceptions appropriately to ensure graceful error handling in your application.
 
@@ -90,13 +90,15 @@ Pipable simplifies the process of connecting to a remote PostgreSQL server, gene
 
    Close the connection to the PostgreSQL server after executing the queries:
 
-   ```python
-   pipable_instance.disconnect()
-   ```
-   or 
-   ```python
-   database_connector.disconnect()
-   ```
+   .. code-block:: python
+
+      pipable_instance.disconnect()
+
+   or
+
+   .. code-block:: python
+
+      database_connector.disconnect()
 
    Ensure that you disconnect from the database to release resources when the queries are completed.
 

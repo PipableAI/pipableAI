@@ -1,11 +1,3 @@
-# pipable/pipable.py
-"""Pipable: A Python package for connecting to a remote PostgreSQL server, generating and executing the natural langauge based data 
-search queries which are mapped to SQL queries using a using the pipLLM.
-
-This module provides classes and functions for connecting to a PostgreSQL database and using a language model to generate SQL queries.
-
-"""
-
 from pandas import DataFrame
 
 from .core.dev_logger import dev_logger
@@ -16,10 +8,17 @@ from .llm_client.pipllm import PipLlmApiClient
 
 
 class Pipable:
-    """A class for connecting to a remote PostgreSQL server and executing SQL queries using llm.
+    """A Python package for connecting to a remote PostgreSQL server, generating and executing natural language-based data search queries mapped to SQL queries using the pipLLM.
 
-    This class provides methods for establishing a connection to a remote PostgreSQL server
-    and using a language model to generate SQL queries.
+    This module provides classes and functions for connecting to a PostgreSQL database and using a language model to generate SQL queries.
+
+    Attributes:
+        database_connector (DatabaseConnectorInterface): The database connector implementing the DatabaseConnectorInterface.
+        llm_api_client (LlmApiClientInterface): The API client implementing the LlmApiClientInterface.
+        connected (bool): A boolean indicating if the Pipable instance is connected to the database.
+        connection: The connection object to the remote PostgreSQL server.
+        logger: The logger object for logging messages and errors.
+        all_table_queries (list): A list to store CREATE TABLE queries for all tables in the database.
     """
 
     def __init__(
@@ -30,8 +29,8 @@ class Pipable:
         """Initialize a Pipable instance.
 
         Args:
-            postgres_config (PostgresConfig): The configuration for connecting to the PostgreSQL server.
-            llm_api_base_url (str): The base URL of the language model API.
+            database_connector (DatabaseConnectorInterface): The configuration for connecting to the PostgreSQL server.
+            llm_api_client (LlmApiClientInterface): The API client for generating SQL queries using the language model.
         """
         self.database_connector = database_connector
         self.llm_api_client = llm_api_client

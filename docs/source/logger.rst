@@ -1,4 +1,4 @@
-.. automodule:: core.dev_logger
+.. automodule:: pipable.core.dev_logger
    :members:
    :undoc-members:
    :show-inheritance:

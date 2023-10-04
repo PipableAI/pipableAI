@@ -1,6 +1,6 @@
 .. _postgresql-connector-py:
 
-.. automodule:: core.postgresql_connector
+.. automodule:: pipable.core.postgresql_connector
    :members:
    :undoc-members:
    :show-inheritance:

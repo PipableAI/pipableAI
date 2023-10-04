@@ -1,18 +1,3 @@
-# pipable/postgresql_connector.py
-"""Pipable Connector Module
-
-This module provides classes and functions for connecting to a remote PostgreSQL server.
-
-Classes:
-    - PostgresConfig: A data class for PostgreSQL connection configuration.
-
-Functions:
-    - connect_to_postgres: Establish a connection to the PostgreSQL server using a provided configuration.
-    - disconnect_from_postgres: Close the connection to the PostgreSQL server.
-
-Author: Pipable
-"""
-
 from dataclasses import dataclass
 
 import psycopg2
@@ -23,6 +8,23 @@ from ..interfaces.database_connector_interface import DatabaseConnectorInterface
 
 @dataclass
 class PostgresConfig:
+    """Data class for PostgreSQL connection configuration.
+
+    Args:
+        host (str): The hostname or IP address of the PostgreSQL server.
+        port (int): The port number to connect to on the PostgreSQL server.
+        database (str): The name of the PostgreSQL database.
+        user (str): The username for connecting to the PostgreSQL server.
+        password (str): The password for the specified username.
+
+    Attributes:
+        host (str): The hostname or IP address of the PostgreSQL server.
+        port (int): The port number to connect to on the PostgreSQL server.
+        database (str): The name of the PostgreSQL database.
+        user (str): The username for connecting to the PostgreSQL server.
+        password (str): The password for the specified username.
+    """
+
     host: str
     port: int
     database: str
@@ -39,29 +41,45 @@ class PostgresConnector(DatabaseConnectorInterface):
     Args:
         config (PostgresConfig): The configuration for connecting to the PostgreSQL server.
 
+    Attributes:
+        config (PostgresConfig): The configuration for connecting to the PostgreSQL server.
+        connection (psycopg2.extensions.connection): The connection to the PostgreSQL server.
+        cursor (psycopg2.extensions.cursor): The cursor for executing SQL queries.
+
+    Raises:
+        ConnectionError: If failed to connect to the PostgreSQL server.
+        ValueError: If an error occurs during query execution.
+
+    Note:
+        The `execute_query` method returns the query results as a Pandas DataFrame.
+
+    Warning:
+        Ensure to disconnect from the database using the `disconnect` method after executing queries
+        to release resources.
+
     Example:
         To establish a connection and execute a query, create an instance of `PostgresConnector` and
         call the `execute_query` method.
 
-        Example:
-        ```python
-        from pipable.connector import PostgresConnector, PostgresConfig
+        .. code-block:: python
 
-        # Define PostgreSQL configuration
-        postgres_config = PostgresConfig(
-            host="your_postgres_host",
-            port=5432,  # Replace with your port number
-            database="your_database_name",
-            user="your_username",
-            password="your_password",
-        )
+            from pipable.connector import PostgresConnector, PostgresConfig
 
-        # Initialize the PostgresConnector instance
-        connector = PostgresConnector(postgres_config)
+            # Define PostgreSQL configuration
+            postgres_config = PostgresConfig(
+                host="your_postgres_host",
+                port=5432,  # Replace with your port number
+                database="your_database_name",
+                user="your_username",
+                password="your_password",
+            )
 
-        # Execute a SQL query
-        result = connector.execute_query("SELECT * FROM Employees")
-        ```
+            # Initialize the PostgresConnector instance
+            connector = PostgresConnector(postgres_config)
+
+            # Execute a SQL query
+            result = connector.execute_query("SELECT * FROM Employees")
+
     """
 
     def __init__(self, config: PostgresConfig):
@@ -75,6 +93,7 @@ class PostgresConnector(DatabaseConnectorInterface):
         self.cursor = None
 
     def connect(self):
+        """Establish a connection to the PostgreSQL server."""
         try:
             self.connection = psycopg2.connect(
                 host=self.config.host,
@@ -90,6 +109,7 @@ class PostgresConnector(DatabaseConnectorInterface):
             )
 
     def disconnect(self):
+        """Close the connection to the PostgreSQL server."""
         if self.cursor:
             self.cursor.close()
         if self.connection:
@@ -100,13 +120,13 @@ class PostgresConnector(DatabaseConnectorInterface):
         a Pandas DataFrame.
 
         Args:
-            sql_query (str): The SQL query to execute.
+            query (str): The SQL query to execute.
 
         Returns:
             DataFrame: A Pandas DataFrame representing the query results.
 
         Raises:
-            psycopg2.Error: If an error occurs during query execution.
+            ValueError: If an error occurs during query execution.
         """
         try:
             self.cursor.execute(query)
