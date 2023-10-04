@@ -4,7 +4,7 @@
 .vscode
 .ipynb_checkpoints
 __pycache__
-docs/build
+build
 dist
 venv
 logs

@@ -1,22 +1,8 @@
-# Pipable 🧪
-
-# Pipable
-
-Pipable is a Python package that provides a high-level interface for connecting to a remote PostgreSQL server, generating and executing natural language-based data search queries mapped to SQL queries using a language model.
-
-## Table of Contents
-
-- [About](#about)
-- [Features](#features)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Documentation](#documentation)
-- [Contributing](#contributing)
-- [License](#license)
+# Pipable 🚀
 
 ## About
 
-Pipable simplifies the process of querying a PostgreSQL database by allowing users to express their queries in natural language. It uses a language model to translate these natural language queries into SQL queries for the specific database and executes them on the server, returning the results in a structured format.
+Pipable is a Python package that simplifies the process of querying a PostgreSQL database. It provides a high-level interface for connecting to a remote PostgreSQL server, generating and executing natural language-based data search queries mapped to SQL queries using a language model.
 
 ## Features
 
@@ -27,50 +13,133 @@ Pipable simplifies the process of querying a PostgreSQL database by allowing use
 
 ## Installation
 
-You can install Pipable using either the source distribution (tar.gz) or the wheel distribution (whl) available in the `dist/` directory.
-
-### From Source Distribution (tar.gz)
+To install Pipable, you can use `pip3`, Python's package manager. Open your terminal or command prompt and run the following command:
 
 ```bash
-pip3 install dist/pipable-<version>.tar.gz
+pip3 install pipable
 ```
 
-Replace `<version>` with the appropriate version number of the package.
+**Note:** Pipable requires Python 3.7 or higher.
 
-### From Wheel Distribution (whl)
+If you prefer to install Pipable from source, you can clone the GitHub repository and install it using `setup.py`. Navigate to the project directory and run:
 
 ```bash
-pip3 install dist/pipable-<version>-py3-none-any.whl
+python3 setup.py install
 ```
 
-Replace `<version>` with the appropriate version number of the package [current:1.0.0].
+This will install Pipable locally on your system.
 
 ## Usage
 
+Pipable simplifies the process of connecting to a remote PostgreSQL server, generating SQL queries using a language model, and executing them. This section provides a step-by-step guide on how to use Pipable effectively in your Python projects.
+
+### Import Pipable:
+
+To start using Pipable, import the necessary classes and interfaces:
+
 ```python
 from pipable import Pipable
-from pipable.core import PostgresConfig
-
-# Initialize Pipable with PostgresConfig and LLM API base URL
-postgres_config = PostgresConfig(
-    host="your-postgresql-host",
-    port=5432,
-    database="your-database",
-    user="your-username",
-    password="your-password"
-)
-llm_api_base_url = "https://your-llm-api-url/"
-
-# Connect to the PostgreSQL server and LLM API
-pipable = Pipable(postgres_config=postgres_config, llm_api_base_url=llm_api_base_url)
-
-# Example: Execute a natural language query
-result = pipable.ask("Find all employees hired in the last month.")
-
-# Process the results
-for row in result:
-    print(row)
+from pipable.llm_client.pipllm import PipLlmApiClient
+from pipable.core.postgresql_connector import PostgresConfig, PostgresConnector
 ```
+
+### Initialize Pipable:
+
+Create an instance of Pipable by providing the required database configuration and LLM API base URL:
+
+```python
+# Define PostgreSQL configuration
+postgres_config = PostgresConfig(
+    host="your_postgres_host",
+    port=5432,  # Replace with your port number
+    database="your_database_name",
+    user="your_username",
+    password="your_password",
+)
+
+# Initialize the database connector and LLM API client
+database_connector = PostgresConnector(postgres_config)
+llm_api_client = PipLlmApiClient(api_base_url="https://your-pipllm-api-url.com")
+
+# Create a Pipable instance
+pipable_instance = Pipable(database_connector=database_connector, llm_api_client=llm_api_client)
+```
+
+### Generate and Execute Queries:
+
+Generate SQL queries using the language model and execute them on the database.
+For Better Performance one can pass the tables names which shold be used in the query
+
+#### When `table_names` is an empty list:
+
+```python
+# Generate a query using the language model
+table_names = []
+question = "List all employees."
+try:
+    # Generate and execute the query
+    result_df = pipable_instance.ask(question, table_names)
+    print("Query Result:")
+    print(result_df)
+except Exception as e:
+    print(f"Error: {e}")
+```
+
+#### When `table_names` is None or not passed in:
+
+```python
+# Generate a query using the language model
+table_names = None
+question = "List all employees."
+try:
+    # Generate and execute the query
+    result_df = pipable_instance.ask(question)
+    print("Query Result:")
+    print(result_df)
+except Exception as e:
+    print(f"Error: {e}")
+```
+
+#### When `table_names` is populated with correct table names:
+
+```python
+# Generate a query using the language model
+table_names = ["table1", "table2", "table3"]
+question = "List all employees."
+try:
+    # Generate and execute the query
+    result_df = pipable_instance.ask(question, table_names)
+    print("Query Result:")
+    print(result_df)
+except Exception as e:
+    print(f"Error: {e}")
+```
+
+Handle exceptions appropriately to ensure graceful error handling in your application.
+
+### Disconnect from the Database:
+
+Close the connection to the PostgreSQL server after executing the queries:
+
+```python
+pipable_instance.disconnect()
+```
+
+or
+
+```python
+database_connector.disconnect()
+```
+
+Ensure that you disconnect from the database to release resources when the queries are completed.
+
+### Additional Information:
+
+- Check the interfaces: `DatabaseConnectorInterface` and `LlmApiClientInterface` for more details on the methods and functionalities provided by Pipable.
+
+## Example
+
+For a complete example, refer to the `example/` directory in this repository.
 
 ## Documentation
 
@@ -90,8 +159,6 @@ Please read our [Contribution Guidelines](CONTRIBUTING.md) for more details.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the Apache 2.0 - see the [LICENSE](LICENSE) file for details.
 
 ---
-
-Feel free to add additional sections or modify the existing ones to better suit your project's needs. Providing clear and comprehensive information in your README will help others understand and contribute to your project more effectively.
