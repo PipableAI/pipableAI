@@ -22,7 +22,7 @@ pipable_instance = Pipable(
 )
 
 # Example usage of the ask_and_execute method
-table_names = ["actors"]  # Replace with your table names
+table_names = ["actor"]  # Replace with your table names
 question = "List first name of all actors."  # Replace with your query question
 
 try:

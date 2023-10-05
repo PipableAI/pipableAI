@@ -39,7 +39,6 @@ class Pipable:
         self.logger = dev_logger()
         self.logger.info("logger initialized in Pipable")
         self.all_table_queries = self._generate_create_table_statements()
-        # Store create table queries for all tables
 
     def _generate_sql_query(self, context, question):
         self.logger.info("generating query using llm")

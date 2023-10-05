@@ -23,14 +23,16 @@ pipable_instance = Pipable(
 
 # Example usage of the ask_and_execute method
 
-# Table_names can be empty, have incorrect table names,
-# or have correct table names. All such cases are handled internally.
+# Table_names can be empty, contain incorrect table names,
+# or have valid table names. All these cases are handled internally.
+# If incorrect table names are provided, a warning will be logged,
+# and an empty context will be sent to the LLM client.
 table_names = ["actor"]  # Replace with your table names,
 question = "List first name of all actors."  # Replace with your query question
 
 # Generate the query with table names
 try:
-    result_query = pipable_instance.ask(question, correct_table_names)
+    result_query = pipable_instance.ask(question, table_names)
     print("Query Result:")
     print(result_query)
 except Exception as e:
