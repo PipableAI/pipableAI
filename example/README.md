@@ -40,7 +40,7 @@ Before you begin, ensure you have the following software installed on your syste
 
 1. **Configure Database Connection:**
 
-   Open `example_ask_query.py` and update the PostgreSQL configuration parameters (host, port, database name, user, and password) to match your local PostgreSQL setup.
+   Open `example_ask_and_execute_query.py` and update the PostgreSQL configuration parameters (host, port, database name, user, and password) to match your local PostgreSQL setup.
 
 2. **Execute the Example Query:**
 

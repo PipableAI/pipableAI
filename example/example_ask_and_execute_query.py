@@ -21,13 +21,13 @@ pipable_instance = Pipable(
     llm_api_client=llm_api_client,
 )
 
-# Example usage of the ask method
+# Example usage of the ask_and_execute method
 table_names = ["actors"]  # Replace with your table names
 question = "List first name of all actors."  # Replace with your query question
 
 try:
     # Generate and execute the query
-    result_df = pipable_instance.ask(question, table_names)
+    result_df = pipable_instance.ask_and_execute(question, table_names)
     print("Query Result:")
     print(result_df.head)
 except Exception as e:
