@@ -3,6 +3,8 @@ import sys
 import unittest
 from unittest.mock import Mock
 
+from pandas import DataFrame
+
 # Add the absolute path of the root folder to Python path
 root_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(root_folder)
@@ -18,14 +20,19 @@ class TestPipable(unittest.TestCase):
         self.mock_llm_api_client = Mock(spec=LlmApiClientInterface)
         self.mock_database_connector = Mock(spec=DatabaseConnectorInterface)
 
+        # Set up the mock DatabaseConnectorInterface's behavior
+        self.mock_result_df = Mock()
+        self.mock_result_df.shape = [0, 3]
+        self.mock_database_connector.execute_query.return_value = self.mock_result_df
+
         # Create a Pipable instance with mocked dependencies
         self.pipable = Pipable(
             database_connector=self.mock_database_connector,
             llm_api_client=self.mock_llm_api_client,
         )
 
-        # Initlaise the all_table_queries to empty list
-        self.pipable.all_table_queries = []
+        # Reset mock to ignore execute_query call from the __init__
+        self.mock_database_connector.execute_query.reset_mock()
 
     def test_ask_and_execute_method(self):
         # Set up the mock LlmApiClientInterface's behavior
@@ -33,10 +40,6 @@ class TestPipable(unittest.TestCase):
         question = "List all employees."
         generated_sql_query = "SELECT * FROM Employees;"
         self.mock_llm_api_client.generate_text.return_value = generated_sql_query
-
-        # Set up the mock DatabaseConnectorInterface's behavior
-        mock_result_df = Mock()
-        self.mock_database_connector.execute_query.return_value = mock_result_df
 
         # Call the ask_and_execute method
         result = self.pipable.ask_and_execute(
@@ -55,7 +58,7 @@ class TestPipable(unittest.TestCase):
         )
 
         # Assert the result
-        self.assertIs(result, mock_result_df)
+        self.assertIs(result, self.mock_result_df)
 
     def test_ask_method(self):
         # Set up the mock LlmApiClientInterface's behavior

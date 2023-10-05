@@ -22,12 +22,30 @@ pipable_instance = Pipable(
 )
 
 # Example usage of the ask_and_execute method
-table_names = ["actors"]  # Replace with your table names
+correct_table_names = ["actor"]  # Replace with your table names
+incorrect_table_names = ["actorss"]  # Replace with your table names
+empty_table_names = []  # Replace with your table names
 question = "List first name of all actors."  # Replace with your query question
 
 try:
-    # Generate the query
-    result_query = pipable_instance.ask(question, table_names)
+    # Generate the query with correct table names
+    result_query = pipable_instance.ask(question, correct_table_names)
+    print("Query Result:")
+    print(result_query)
+except Exception as e:
+    print(f"Error: {e}")
+
+try:
+    # Generate the query with incorrect table names
+    result_query = pipable_instance.ask(question, incorrect_table_names)
+    print("Query Result:")
+    print(result_query)
+except Exception as e:
+    print(f"Error: {e}")
+
+try:
+    # Generate the query with empty table names
+    result_query = pipable_instance.ask(question, incorrect_table_names)
     print("Query Result:")
     print(result_query)
 except Exception as e:

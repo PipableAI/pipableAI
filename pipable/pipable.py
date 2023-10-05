@@ -40,7 +40,8 @@ class Pipable:
         self.connection = None
         self.logger = dev_logger()
         self.logger.info("logger initialized in Pipable")
-        self.all_table_queries = None  # Store create table queries for all tables
+        self.all_table_queries = self._generate_create_table_statements()
+        # Store create table queries for all tables
 
     def _generate_sql_query(self, context, question):
         self.logger.info("generating query using llm")
@@ -62,6 +63,7 @@ class Pipable:
             try:
                 self.database_connector.connect()
                 self.connected = True
+                self.logger.info("DB connection established")
             except Exception as e:
                 self.logger.error(f"Failed to connect to the database: {str(e)}")
                 raise ConnectionError("Failed to connect to the database.")
@@ -92,8 +94,7 @@ class Pipable:
         Returns:
             list: A list of CREATE TABLE statements.
         """
-        if self.all_table_queries is not None:
-            return self.all_table_queries
+        self.connect()
         # Check if specific table names are provided, else get all tables
         if table_names is not None and len(table_names) > 0:
             tables_to_fetch = ",".join([f"'{table}'" for table in table_names])
@@ -112,6 +113,11 @@ class Pipable:
             # Execute the SQL query using the database connector and get the result as DataFrame
             column_info_df = self.database_connector.execute_query(column_info_query)
 
+            # If none of the table_names tables exists in the database
+            if column_info_df.shape[0] == 0:
+                self.logger.warn(f"None of the tables:{table_names} exists in database")
+                return []
+
             # Group column info by table name using Pandas groupby
             grouped_columns = column_info_df.groupby("table_name").apply(
                 lambda x: ", ".join(
@@ -123,15 +129,14 @@ class Pipable:
             )
 
             # Generate CREATE TABLE statements in Python
-            self.all_table_queries = [
+            return [
                 f"CREATE TABLE {table_name} ({columns});"
                 for table_name, columns in grouped_columns.items()
             ]
 
-            return self.all_table_queries
         except Exception as e:
             self.logger.error(f"Error generating CREATE TABLE statements: {str(e)}")
-            raise ValueError("Error generating CREATE TABLE statements.")
+            raise ValueError(f"Error generating CREATE TABLE statements: {str(e)}")
 
     def ask_and_execute(
         self, question: str, table_names: Optional[List[str]]
@@ -153,12 +158,16 @@ class Pipable:
             # Connect to PostgreSQL if not already connected
             self.connect()
 
-            # Generate CREATE TABLE statements for the specified tables or all tables
-            create_table_statements = self._generate_create_table_statements(
-                table_names
-            )
-            # Concatenate create table statements into a single line for context
-            context = " ".join(create_table_statements)
+            # Set default context
+            context = " ".join(self.all_table_queries)
+
+            # Generate CREATE TABLE statements for the specified tables
+            if table_names and len(table_names) > 0:
+                create_table_statements = self._generate_create_table_statements(
+                    table_names
+                )
+                # Concatenate create table statements into a single line for context
+                context = " ".join(create_table_statements)
 
             # Generate SQL query from LLM
             sql_query = self._generate_sql_query(context, question)
@@ -188,12 +197,16 @@ class Pipable:
             # Connect to PostgreSQL if not already connected
             self.connect()
 
-            # Generate CREATE TABLE statements for the specified tables or all tables
-            create_table_statements = self._generate_create_table_statements(
-                table_names
-            )
-            # Concatenate create table statements into a single line for context
-            context = " ".join(create_table_statements)
+            # Set default context
+            context = " ".join(self.all_table_queries)
+
+            # Generate CREATE TABLE statements for the specified tables
+            if table_names and len(table_names) > 0:
+                create_table_statements = self._generate_create_table_statements(
+                    table_names
+                )
+                # Concatenate create table statements into a single line for context
+                context = " ".join(create_table_statements)
 
             # Generate SQL query from LLM
             sql_query = self._generate_sql_query(context, question)
