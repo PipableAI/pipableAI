@@ -79,7 +79,9 @@ class Pipable:
                 self.logger.error(f"Failed to disconnect from the database: {str(e)}")
                 raise ConnectionError("Failed to disconnect from the database.")
 
-    def _generate_create_table_statements(self, table_names: Optional[List[str]]):
+    def _generate_create_table_statements(
+        self, table_names: Optional[List[str]] = None
+    ):
         """
         Generate CREATE TABLE statements for the specified tables or all tables.
 
@@ -131,7 +133,9 @@ class Pipable:
             self.logger.error(f"Error generating CREATE TABLE statements: {str(e)}")
             raise ValueError("Error generating CREATE TABLE statements.")
 
-    def ask_and_execute(self, question: str, table_names: Optional[List[str]]) -> DataFrame:
+    def ask_and_execute(
+        self, question: str, table_names: Optional[List[str]]
+    ) -> DataFrame:
         """Generate an SQL query and execute it on the PostgreSQL server.
 
         Args:
@@ -166,7 +170,7 @@ class Pipable:
         except Exception as e:
             raise ValueError(f"Error in 'ask_and_execute' method: {str(e)}")
 
-    def ask(self, question: str, table_names: Optional[List[str]]) -> str:
+    def ask(self, question: str, table_names: Optional[List[str]] = None) -> str:
         """Generate an SQL query.
 
         Args:
