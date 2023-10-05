@@ -3,10 +3,8 @@ from typing import List, Optional
 from pandas import DataFrame
 
 from .core.dev_logger import dev_logger
-from .core.postgresql_connector import PostgresConfig, PostgresConnector
 from .interfaces.database_connector_interface import DatabaseConnectorInterface
 from .interfaces.llm_api_client_interface import LlmApiClientInterface
-from .llm_client.pipllm import PipLlmApiClient
 
 
 class Pipable:
@@ -41,7 +39,6 @@ class Pipable:
         self.logger = dev_logger()
         self.logger.info("logger initialized in Pipable")
         self.all_table_queries = self._generate_create_table_statements()
-        # Store create table queries for all tables
 
     def _generate_sql_query(self, context, question):
         self.logger.info("generating query using llm")
