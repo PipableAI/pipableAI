@@ -1,19 +1,32 @@
 from setuptools import find_packages, setup
 
+with open("README.md", "r", encoding="utf-8") as fh:
+    long_description = fh.read()
+
 setup(
     name="pipable",
-    version="1.0.0",
+    version="1.0.3",
     description="Simplify the process of connecting to remote PostgreSQL servers and executing natural language-based data search queries.",
-    long_description="""Pipable is a Python package designed to simplify the process of connecting to remote PostgreSQL servers and executing natural language-based data search queries. Powered by a state-of-the-art language model, Pipable translates user-friendly search queries into SQL commands and executes them, making data retrieval and analysis effortless. With a user-friendly interface and robust backend, Pipable is the ideal tool for data analysts, developers, and anyone working with complex databases.""",
-    long_description_content_type="text/plain",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     author="PipableAI",
     author_email="dev@pipable.ai",
-    url="https://github.com/PipableAI/pipable-released",
+    project_urls={
+        "HomePage": "https://pipable.ai/",
+        "Documentation": "https://pipableai.github.io/pipable-docs/",
+        "Source Code": "https://github.com/PipableAI/pipable-released",
+        "Issue Tracker": "https://github.com/PipableAI/pipable-released/issues",
+    },
     packages=find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3.7",
         "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
     ],
-    install_requires=["pandas", "psycopg2"],
+    install_requires=[
+        "pandas>=2.0.0",
+        "psycopg2-binary>=2.9.0,<=2.9.9",
+        "requests>=2.28",
+    ],
+    python_requires=">=3.7",
 )
