@@ -36,19 +36,26 @@ Before you begin, ensure you have the following software installed on your syste
 
    The server will start and listen for requests at `http://localhost:8000`.
 
-## Running the Query Example
+## Running the Query Examples
 
 1. **Configure Database Connection:**
 
-   Open `example_ask_and_execute_query.py` and update the PostgreSQL configuration parameters (host, port, database name, user, and password) to match your local PostgreSQL setup.
+   Open `example_ask_and_execute_query.py` and `example_ask_query.py` and update the PostgreSQL configuration parameters (host, port, database name, user, and password) to match your local PostgreSQL setup.
 
 2. **Execute the Example Query:**
 
     ```bash
-    python example_as_query.py
+    python3 example_ask_and_execute_query.py
     ```
 
     This script will generate an SQL query using the Pipable LLM server and execute it against the specified PostgreSQL database. The query result will be printed to the console.
+
+    
+    ```bash
+    python3 example_ask_query.py
+    ```
+
+    This script will generate an SQL query using the Pipable LLM server correspondint to the specified PostgreSQL database. The query result will be printed to the console.
 
 3. **Review Query Result:**
 
@@ -61,4 +68,4 @@ Before you begin, ensure you have the following software installed on your syste
 ## Notes
 
 - Ensure that the PostgreSQL server is running and accessible before running the Pipable LLM server and the query script.
-- Modify the table names and query question in `example_as_query.py` according to your use case.
+- Modify the table names and query question in `example_ask_and_execute_query.py` according to your use case.
