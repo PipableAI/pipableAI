@@ -39,7 +39,7 @@ class IntegrationTestPipable(unittest.TestCase):
         self.local_database_connector.disconnect()
 
     @patch("pipable.llm_client.pipllm.PipLlmApiClient")  # Mock the LLM API client
-    def test_pipable_integration(self, mock_llm_api_client):
+    def test_ask_and_execute_method(self, mock_llm_api_client):
         # Arrange
         # Set up the mock LLM API client
         mock_llm_instance = mock_llm_api_client.return_value
@@ -52,7 +52,34 @@ class IntegrationTestPipable(unittest.TestCase):
             llm_api_client=mock_llm_instance,
         )
 
-        # Call the 'ask' method
+        # Call the 'ask_and_execute' method
+        result = pipable.ask_and_execute(
+            table_names=["actor", "city"],
+            question="List first name of all actors.",
+        )
+
+        # Assert
+        # Ensure the LLM API client's 'generate_text' method was called with the correct arguments
+        mock_llm_instance.generate_text.assert_called_once_with(
+            "CREATE TABLE actor (actor_id integer, last_update timestamp without time zone, first_name character varying, last_name character varying); CREATE TABLE city (last_update timestamp without time zone, city_id integer, country_id smallint, city character varying);",
+            "List first name of all actors.",
+        )
+
+    @patch("pipable.llm_client.pipllm.PipLlmApiClient")  # Mock the LLM API client
+    def test_ask_method(self, mock_llm_api_client):
+        # Arrange
+        # Set up the mock LLM API client
+        mock_llm_instance = mock_llm_api_client.return_value
+        mock_llm_instance.generate_text.return_value = "SELECT first_name FROM actor;"
+
+        # Act
+        # Initialize Pipable with mocked dependencies
+        pipable = Pipable(
+            database_connector=self.local_database_connector,
+            llm_api_client=mock_llm_instance,
+        )
+
+        # Call the 'ask_and_execute' method
         result = pipable.ask(
             table_names=["actor", "city"],
             question="List first name of all actors.",
@@ -64,6 +91,8 @@ class IntegrationTestPipable(unittest.TestCase):
             "CREATE TABLE actor (actor_id integer, last_update timestamp without time zone, first_name character varying, last_name character varying); CREATE TABLE city (last_update timestamp without time zone, city_id integer, country_id smallint, city character varying);",
             "List first name of all actors.",
         )
+
+        self.assertEqual(result, "SELECT first_name FROM actor;")
 
 
 if __name__ == "__main__":

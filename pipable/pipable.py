@@ -1,3 +1,5 @@
+from typing import List, Optional
+
 from pandas import DataFrame
 
 from .core.dev_logger import dev_logger
@@ -77,8 +79,17 @@ class Pipable:
                 self.logger.error(f"Failed to disconnect from the database: {str(e)}")
                 raise ConnectionError("Failed to disconnect from the database.")
 
-    def _generate_create_table_statements(self, table_names=None):
-        """Generate CREATE TABLE statements for the specified tables or all tables in the database."""
+    def _generate_create_table_statements(self, table_names: Optional[List[str]]):
+        """
+        Generate CREATE TABLE statements for the specified tables or all tables.
+
+        Parameters:
+            table_names (list, optional): The list of table names for the query context.
+                If not provided, it will be auto-generated.
+
+        Returns:
+            list: A list of CREATE TABLE statements.
+        """
         if self.all_table_queries is not None:
             return self.all_table_queries
         # Check if specific table names are provided, else get all tables
@@ -120,13 +131,13 @@ class Pipable:
             self.logger.error(f"Error generating CREATE TABLE statements: {str(e)}")
             raise ValueError("Error generating CREATE TABLE statements.")
 
-    def ask(self, question=None, table_names=None) -> DataFrame:
+    def ask_and_execute(self, question: str, table_names: Optional[List[str]]) -> DataFrame:
         """Generate an SQL query and execute it on the PostgreSQL server.
 
         Args:
             table_names (list, optional): The list of table names for the query context.
             If not provided, it will be auto-generated.
-            question (str, optional): The query to perform in simple English.
+            question (str): The query to perform in simple English.
 
         Returns:
             pandas.DataFrame: A DataFrame containing the query result.
@@ -153,4 +164,36 @@ class Pipable:
 
             return result_df
         except Exception as e:
-            raise Exception(f"Error in 'ask' method: {str(e)}")
+            raise ValueError(f"Error in 'ask_and_execute' method: {str(e)}")
+
+    def ask(self, question: str, table_names: Optional[List[str]]) -> str:
+        """Generate an SQL query.
+
+        Args:
+            table_names (list, optional): The list of table names for the query context.
+            If not provided, it will be auto-generated.
+            question (str): The query to perform in simple English.
+
+        Returns:
+            str: A sql query result.
+
+        Raises:
+            ValueError: If the language model does not generate a valid SQL query.
+        """
+        try:
+            # Connect to PostgreSQL if not already connected
+            self.connect()
+
+            # Generate CREATE TABLE statements for the specified tables or all tables
+            create_table_statements = self._generate_create_table_statements(
+                table_names
+            )
+            # Concatenate create table statements into a single line for context
+            context = " ".join(create_table_statements)
+
+            # Generate SQL query from LLM
+            sql_query = self._generate_sql_query(context, question)
+
+            return sql_query
+        except Exception as e:
+            raise ValueError(f"Error in 'ask' method: {str(e)}")

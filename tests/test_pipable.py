@@ -24,9 +24,12 @@ class TestPipable(unittest.TestCase):
             llm_api_client=self.mock_llm_api_client,
         )
 
-    def test_ask_method(self):
+        # Initlaise the all_table_queries to empty list
+        self.pipable.all_table_queries = []
+
+    def test_ask_and_execute_method(self):
         # Set up the mock LlmApiClientInterface's behavior
-        context = []
+        context = ""
         question = "List all employees."
         generated_sql_query = "SELECT * FROM Employees;"
         self.mock_llm_api_client.generate_text.return_value = generated_sql_query
@@ -35,8 +38,8 @@ class TestPipable(unittest.TestCase):
         mock_result_df = Mock()
         self.mock_database_connector.execute_query.return_value = mock_result_df
 
-        # Call the ask method
-        result = self.pipable.ask(
+        # Call the ask_and_execute method
+        result = self.pipable.ask_and_execute(
             question=question,
             table_names=context,
         )
@@ -51,8 +54,29 @@ class TestPipable(unittest.TestCase):
             generated_sql_query
         )
 
-        # Assert the result (for demonstration purposes, you might want to modify this assertion based on the actual behavior)
+        # Assert the result
         self.assertIs(result, mock_result_df)
+
+    def test_ask_method(self):
+        # Set up the mock LlmApiClientInterface's behavior
+        context = ""
+        question = "List all employees."
+        generated_sql_query = "SELECT * FROM Employees;"
+        self.mock_llm_api_client.generate_text.return_value = generated_sql_query
+
+        # Call the ask_and_execute method
+        result = self.pipable.ask(
+            question=question,
+            table_names=context,
+        )
+
+        # Assert that the LlmApiClientInterface's generate_text method was called with the correct arguments
+        self.mock_llm_api_client.generate_text.assert_called_once_with(
+            context, question
+        )
+
+        # Assert the result
+        self.assertIs(result, generated_sql_query)
 
 
 if __name__ == "__main__":
