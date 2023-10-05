@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="pipable",
-    version="1.0.3",
+    version="0.1.0",
     description="Simplify the process of connecting to remote PostgreSQL servers and executing natural language-based data search queries.",
     long_description=long_description,
     long_description_content_type="text/markdown",

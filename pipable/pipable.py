@@ -3,10 +3,8 @@ from typing import List, Optional
 from pandas import DataFrame
 
 from .core.dev_logger import dev_logger
-from .core.postgresql_connector import PostgresConfig, PostgresConnector
 from .interfaces.database_connector_interface import DatabaseConnectorInterface
 from .interfaces.llm_api_client_interface import LlmApiClientInterface
-from .llm_client.pipllm import PipLlmApiClient
 
 
 class Pipable:
