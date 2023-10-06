@@ -2,9 +2,9 @@ from typing import List, Optional
 
 from pandas import DataFrame
 
-from .core.dev_logger import dev_logger
-from .interfaces.database_connector_interface import DatabaseConnectorInterface
-from .interfaces.llm_api_client_interface import LlmApiClientInterface
+from pipable.core.dev_logger import dev_logger
+from pipable.interfaces.database_connector_interface import DatabaseConnectorInterface
+from pipable.interfaces.llm_api_client_interface import LlmApiClientInterface
 
 
 class Pipable:

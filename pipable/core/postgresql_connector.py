@@ -3,7 +3,7 @@ from dataclasses import dataclass
 import psycopg2
 from pandas import DataFrame
 
-from ..interfaces.database_connector_interface import DatabaseConnectorInterface
+from pipable.interfaces.database_connector_interface import DatabaseConnectorInterface
 
 
 @dataclass
